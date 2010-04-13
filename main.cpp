@@ -177,7 +177,7 @@ public:
 		buildings.push_back(_newBuilding);
 	}
 
-	void drawMe(){
+	void drawMe(int cull){
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 
@@ -187,23 +187,33 @@ public:
 
 			glColor3f(r, g, b);
 
-			/*
-			glVertex3f(-dimX, 0.1, -dimZ);
-			glVertex3f(dimX, 0.1, -dimZ);
-			glVertex3f(dimX, 0.1, dimZ);
-			glVertex3f(-dimX, 0.1, dimZ);
-	*/
-			glVertex3f(0, 0.1, 0);
-			glVertex3f(dimX, 0.1, 0);
-			glVertex3f(dimX, 0.1, dimZ);
-			glVertex3f(0, 0.1, dimZ);
-
+			if(cull==0){
+				glVertex3f(0, 0.1, 0);
+				glVertex3f(dimX, 0.1, 0);
+				glVertex3f(dimX, 0.1, -dimZ);
+				glVertex3f(0, 0.1, -dimZ);
+			}
+			else{
+				glVertex3f(0, 0.1, 0);
+				glVertex3f(0, 0.1, dimZ);
+				glVertex3f(dimX, 0.1, dimZ);
+				glVertex3f(dimX, 0.1, 0);
+			}
 
 		glEnd();
 
 		glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 	}
+
+	/* Set & get */
+	int getDimX(){return dimX;}
+	int getDimY(){return dimY;}
+	int getDimZ(){return dimZ;}
+	int getX(){return X;}
+	int getY(){return Y;}
+	int getZ(){return Z;}
+	vector<Obj*> getBuildings(){return buildings;}
 
 
 };
@@ -480,6 +490,7 @@ void DisegnaTutto()
 		}
 
 		//limiti della cittadella
+		/*
 		glColor3f(0.6f, 0.8f, 0.5f);
 		for(a=-16; a<16; a+= 0.2f)
 		{
@@ -491,6 +502,7 @@ void DisegnaTutto()
 			glVertex3f(-15,ypos,a);
 			glVertex3f(15,ypos,a);
 		}
+		*/
 	glEnd();
 
 
@@ -499,17 +511,15 @@ void DisegnaTutto()
 
 
 	//Disegno settori
-
 	for(int i=0; i< myCitadel.size();i++){
-		myCitadel.at(i)->drawMe();
-
+		if(i>2) myCitadel.at(i)->drawMe(1);
+		else    myCitadel.at(i)->drawMe(0);
 	}
-
 
 
 	//Disegno cittadella (TMP)
 	glColor3f(1,0,1);
-	for(int i=0;i<dim_cit;i++)
+	for(int i=0;i<myObjCitadel.size();i++)
 		myObjCitadel.at(i).drawMe();
 
 	//glutSolidOctahedron();
@@ -579,10 +589,6 @@ int main(int argc, char **argv)
 	srand ( time(NULL) );
 
 
-	//myObjs = new Obj[dim_cit];
-
-
-
 	/* Settori della città
 	 *
 	 * 1  2  3
@@ -598,17 +604,88 @@ int main(int argc, char **argv)
 		//myCitadel.push_back()
 	}
 */
-	myCitadel.push_back(new Sector(-15,0,-40, 20,0,-40));
-	myCitadel.push_back(new Sector(  5,0,-40,  5,0,-20));
-	myCitadel.push_back(new Sector( 10,0,-40,  5,0,-30));
+	/*
+	myCitadel.push_back(new Sector(-15,0,-40, 20,0,40));
+	myCitadel.push_back(new Sector(  5,0,-40,  5,0,20));
+	myCitadel.push_back(new Sector( 10,0,-40,  5,0,30));
 
-	myCitadel.push_back(new Sector(-15,0,-20,  5,0,-20));
-	myCitadel.push_back(new Sector(-10,0,-25, 15,0,-15));
-	myCitadel.push_back(new Sector( 5,0,-30,   10,0,-10));
+	myCitadel.push_back(new Sector(-15,0,-40, 20,0,15));
+	myCitadel.push_back(new Sector(  5,0,-40,  5,0,20));
+	myCitadel.push_back(new Sector( 10,0,-40,  5,0,20));
+*/
+	//coord x da cui partire a generare i settori
+	int startX = -15;
+	//asse centrale della citta
+	int middle = -40;
+	//estensione della città
+	int citysize = 30;
+	//max altezza settore
+	int sectorH = 25;
+
+	int sectorPerLine = 3;
+
+	int xIterator = startX;
+	int yIterator = citysize;
+
+
+	/*
+	 * Costruisco i quartieri con coordinate assolute, questo mi facilita la gestione di eventi
+	 * che si verificano lungo i confini tra i vari quartieri
+     */
+	cout<< "## Building city... "<<endl;
+	for(int j=0; j<sectorPerLine*2; j++){
+
+		if(j==sectorPerLine){
+			xIterator = startX;
+			yIterator = citysize;
+		}
+
+		int myWidth;
+		if(j==sectorPerLine-1 || j==sectorPerLine*2 -1)
+			{
+				myWidth  =  citysize/2 - xIterator;
+				if(myWidth<=0)myWidth=5;
+			}
+		else
+			 myWidth  =  min(10,max(rand() % max((yIterator-5) + 5,1),5));
+
+		int myHeight =  max(rand() % max((sectorH-5)+5,1),5);
+
+		//Creo il settore
+		Sector* newSector = new Sector(xIterator,0,middle, myWidth,0,myHeight);
+
+		//Creo degli edifici nel settore (un numero casuale, scalato in base alle dimensioni del settore)
+		int limiter = (myWidth * myHeight)/20;
+		int toBuild = rand()%limiter + 1;
+
+		int meno=1;
+		if(j>2)
+			meno=-1;
+
+		for(int k=0; k < toBuild; k++){
+			int relPosX = (rand() % max((myWidth-6),1))+3 + newSector->getX();
+			int relPosZ = meno*(rand() % myHeight) - newSector->getZ();
+			int myrY = rand() % 360;
+
+			Obj* newBuilding = new Obj(relPosX,0,-1*relPosZ, 0,myrY,0);
+			newSector->addBuilding(newBuilding);
+			myObjCitadel.push_back(*newBuilding);
+		}
+		cout<< "\n Limiter   for sector " << j << " : " << limiter << endl;
+		cout<< " Effective for sector " << j << " : " << toBuild << endl;
+
+
+		//Aggiungo settore alla cittadella
+		myCitadel.push_back(newSector);
+
+		xIterator += myWidth;
+		yIterator -= myWidth;
+	}
 
 
 	//Crea la cittadella in modo casuale
 	for(int i=0; i < dim_cit ;i++){
+
 
 	  int meno;
 	  if(rand()%2 == 0)meno=-1;
@@ -619,12 +696,12 @@ int main(int argc, char **argv)
 	  int myrY = rand() % 360;
 
 	  //myObjs[i] = Obj(myX,0,-1*myZ,0,myrY,0);
-	  myObjCitadel.push_back(Obj(myX,0,-1*myZ,0,myrY,0));
+	  //myObjCitadel.push_back(Obj(myX,0,-1*myZ,0,myrY,0));
 
 	}
 
 	//Posizione iniziale dell'osservatore
-	ossY=10;
+	ossY=14;
 	ossZ=0;
 	ossX=0;
 	ossB=-16;
