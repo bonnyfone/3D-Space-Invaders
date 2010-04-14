@@ -229,6 +229,8 @@ Obj* myObjs;
 vector<Obj> myObjCitadel;
 vector<Sector*> myCitadel;
 
+//Array globale per le luce
+GLfloat PosLite[4]={2,2,2,1};
 int dim_cit = 20;
 
 /*############################################################################*/
@@ -470,6 +472,17 @@ void DisegnaTutto()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	//Illuminazione
+    GLfloat aLite[4] = {0.2, 0.2, 0.2, 1};
+    GLfloat dLite[4] = {0.8, 0.8, 0.8, 1};
+    GLfloat sLite[4] = {0.8, 0.8, 0.8, 1};
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
+
+   glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
+
 	//Osservatore
 	glRotatef(-ossB, 1, 0, 0); //imp per prima..
 	glRotatef(-ossA, 0, 1, 0); //imp
@@ -584,6 +597,7 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST); //abilita zbuffer
 	glEnable(GL_CULL_FACE);
 
+	//Illuminazione
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
