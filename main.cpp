@@ -28,7 +28,7 @@ private:
 	float X,Y,Z;
 	float rX,rY,rZ;
 	float vX,vY,vZ;
-	float R;
+	float R,L;
 public:
 	//Costruttore senza parametri
 	Obj(){
@@ -56,14 +56,18 @@ public:
 	};
 
 	void randomizeDimension(){
-		R = (rand()%200+1)/100.0f;
+		R = (rand()%150+5)/100.0f;
+		cout << "R:" << R;
+
+		L = (rand()%400+5)/100.0f;
+		cout << "L:" << L;
 	}
 
 	void drawMe(){
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 
-		glTranslatef(X,Y+R,Z);
+		glTranslatef(X,Y+L,Z);
 		glRotatef(rX, 1, 0, 0);
 		glRotatef(rY, 0, 1, 0);
 		glRotatef(rZ, 0, 0, 1);
@@ -71,40 +75,40 @@ public:
 		glBegin(GL_QUADS);
 
 			glColor3f(1, 0, 1);
-			glVertex3f(R, R, R);
-			glVertex3f(-R, R, R);
-			glVertex3f(-R, -R, R);
-			glVertex3f(R, -R, R);
+			glVertex3f(R, L, R);
+			glVertex3f(-R, L, R);
+			glVertex3f(-R, -L, R);
+			glVertex3f(R, -L, R);
 
 			glColor3f(0, 0, 1);
-			glVertex3f(-R, R, -R);
-			glVertex3f(R, R, -R);
-			glVertex3f(R, -R, -R);
-			glVertex3f(-R, -R, -R);
+			glVertex3f(-R, L, -R);
+			glVertex3f(R, L, -R);
+			glVertex3f(R, -L, -R);
+			glVertex3f(-R, -L, -R);
 
 			glColor3f(1, 1, 0);
-			glVertex3f(R, R, -R);
-			glVertex3f(R, R, R);
-			glVertex3f(R, -R, R);
-			glVertex3f(R, -R, -R);
+			glVertex3f(R, L, -R);
+			glVertex3f(R, L, R);
+			glVertex3f(R, -L, R);
+			glVertex3f(R, -L, -R);
 
 			glColor3f(0.5f, 0, 1);
-			glVertex3f(-R, R, R);
-			glVertex3f(-R, R, -R);
-			glVertex3f(-R, -R, -R);
-			glVertex3f(-R, -R, R);
+			glVertex3f(-R, L, R);
+			glVertex3f(-R, L, -R);
+			glVertex3f(-R, -L, -R);
+			glVertex3f(-R, -L, R);
 
 			glColor3f(0, 1, 1);
-			glVertex3f(R, R, -R);
-			glVertex3f(-R, R, -R);
-			glVertex3f(-R, R, R);
-			glVertex3f(R, R, R);
+			glVertex3f(R, L, -R);
+			glVertex3f(-R, L, -R);
+			glVertex3f(-R, L, R);
+			glVertex3f(R, L, R);
 
 			glColor3f(1, 0, 0);
-			glVertex3f(-R, -R, -R);
-			glVertex3f(R, -R, -R);
-			glVertex3f(R, -R, R);
-			glVertex3f(-R, -R, R);
+			glVertex3f(-R, -L, -R);
+			glVertex3f(R, -L, -R);
+			glVertex3f(R, -L, R);
+			glVertex3f(-R, -L, R);
 		glEnd();
 
 		//Bordi neri
@@ -187,13 +191,13 @@ public:
 
 			glColor3f(r, g, b);
 
-			if(cull==0){
+			if(cull==0){//antiorario
 				glVertex3f(0, 0.1, 0);
 				glVertex3f(dimX, 0.1, 0);
 				glVertex3f(dimX, 0.1, -dimZ);
 				glVertex3f(0, 0.1, -dimZ);
 			}
-			else{
+			else{//orario
 				glVertex3f(0, 0.1, 0);
 				glVertex3f(0, 0.1, dimZ);
 				glVertex3f(dimX, 0.1, dimZ);
@@ -644,18 +648,20 @@ int main(int argc, char **argv)
 		if(j==sectorPerLine-1 || j==sectorPerLine*2 -1)
 			{
 				myWidth  =  citysize/2 - xIterator;
-				if(myWidth<=0)myWidth=5;
+				if(myWidth<=0)myWidth=7;
 			}
 		else
-			 myWidth  =  min(10,max(rand() % max((yIterator-5) + 5,1),5));
+			 myWidth  =  min(11,max(rand() % max((yIterator-7),1),7));
+			 //myWidth  =  min(10,max(rand() % max((yIterator-5) + 5,1),5));
 
-		int myHeight =  max(rand() % max((sectorH-5)+5,1),5);
+
+		int myHeight =  max(rand() % max((sectorH-7),1),7);
 
 		//Creo il settore
 		Sector* newSector = new Sector(xIterator,0,middle, myWidth,0,myHeight);
 
 		//Creo degli edifici nel settore (un numero casuale, scalato in base alle dimensioni del settore)
-		int limiter = (myWidth * myHeight)/20;
+		int limiter = (myWidth * myHeight)/10;
 		int toBuild = rand()%limiter + 1;
 
 		int meno=1;
@@ -664,7 +670,7 @@ int main(int argc, char **argv)
 
 		for(int k=0; k < toBuild; k++){
 			int relPosX = (rand() % max((myWidth-6),1))+3 + newSector->getX();
-			int relPosZ = meno*(rand() % myHeight) - newSector->getZ();
+			int relPosZ = meno*((rand() % max((myHeight-6),1))+3) - newSector->getZ(); //<<<<<<<<<<<< DA AGGIUSTARE PER NON FAR SFORARE GLI EDIFICI
 			int myrY = rand() % 360;
 
 			Obj* newBuilding = new Obj(relPosX,0,-1*relPosZ, 0,myrY,0);
@@ -682,7 +688,7 @@ int main(int argc, char **argv)
 		yIterator -= myWidth;
 	}
 
-
+	/*
 	//Crea la cittadella in modo casuale
 	for(int i=0; i < dim_cit ;i++){
 
@@ -699,6 +705,7 @@ int main(int argc, char **argv)
 	  //myObjCitadel.push_back(Obj(myX,0,-1*myZ,0,myrY,0));
 
 	}
+	*/
 
 	//Posizione iniziale dell'osservatore
 	ossY=14;
