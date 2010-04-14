@@ -56,10 +56,10 @@ public:
 	};
 
 	void randomizeDimension(){
-		R = (rand()%150+5)/100.0f;
+		R = (rand()%150+15)/100.0f;
 		cout << "R:" << R;
 
-		L = (rand()%400+5)/100.0f;
+		L = (rand()%400+20)/100.0f;
 		cout << "L:" << L;
 	}
 
@@ -109,6 +109,7 @@ public:
 			glVertex3f(R, -L, -R);
 			glVertex3f(R, -L, R);
 			glVertex3f(-R, -L, R);
+
 		glEnd();
 
 		//Bordi neri
@@ -582,6 +583,13 @@ int main(int argc, char **argv)
 
 	glEnable(GL_DEPTH_TEST); //abilita zbuffer
 	glEnable(GL_CULL_FACE);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	GLfloat black[4]= {0,0,0,1};
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
 
 	//Toglie il cursore
 	glutSetCursor(GLUT_CURSOR_NONE);
