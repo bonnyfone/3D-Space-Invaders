@@ -1,1 +1,3 @@
-main.d main.o: ../main.cpp
+main.d main.o: ../main.cpp ../obj.h
+
+../obj.h:

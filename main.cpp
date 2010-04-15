@@ -13,6 +13,7 @@
 #include <GL/glut.h>
 #include <vector>
 
+#include "obj.h"
 
 
 void CambiaDim(int, int);
@@ -21,130 +22,6 @@ void TastoPremuto(unsigned char, int, int);
 
 using namespace std;
 
-/**Classe che rappresenta un generico oggetto grafico*/
-class Obj{
-
-private:
-	float X,Y,Z;
-	float rX,rY,rZ;
-	float vX,vY,vZ;
-	float R,L;
-public:
-	//Costruttore senza parametri
-	Obj(){
-		X=0; Y=0; Z=-10; rX=rY=rZ=vX=vY=vZ=0;
-		randomizeDimension();
-		cout << "costruttore 0 param";
-	};
-
-	//Costruttore a 3 parametri (posizione)
-	Obj(float _X,float _Y,float _Z){
-		X=_X; Y=_Y; Z=_Z; rX=rY=rZ=vX=vY=vZ=0;
-		randomizeDimension();
-	};
-
-	//Costruttore a 6 parametri (posizione+rotazione)
-	Obj(float _X,float _Y,float _Z,float _rX,float _rY,float _rZ){
-		X=_X; Y=_Y; Z=_Z; rX=_rX; rY=_rY; rZ=_rZ; vX=vY=vZ=0;
-		randomizeDimension();
-	};
-
-	//Costruttore a 6 parametri (posizione+rotazione+velocita)
-	Obj(float _X,float _Y,float _Z,float _rX,float _rY,float _rZ,float _vX,float _vY,float _vZ){
-		X=_X; Y=_Y; Z=_Z; rX=_rX; rY=_rY; rZ=_rZ; vX=_vX; vY=_vY; vZ=_vZ;
-		randomizeDimension();
-	};
-
-	void randomizeDimension(){
-		R = (rand()%150+15)/100.0f;
-		cout << "R:" << R;
-
-		L = (rand()%400+20)/100.0f;
-		cout << "L:" << L;
-	}
-
-	void drawMe(){
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-
-		glTranslatef(X,Y+L,Z);
-		glRotatef(rX, 1, 0, 0);
-		glRotatef(rY, 0, 1, 0);
-		glRotatef(rZ, 0, 0, 1);
-
-		glBegin(GL_QUADS);
-
-			glColor3f(1, 0, 1);
-			glVertex3f(R, L, R);
-			glVertex3f(-R, L, R);
-			glVertex3f(-R, -L, R);
-			glVertex3f(R, -L, R);
-
-			glColor3f(0, 0, 1);
-			glVertex3f(-R, L, -R);
-			glVertex3f(R, L, -R);
-			glVertex3f(R, -L, -R);
-			glVertex3f(-R, -L, -R);
-
-			glColor3f(1, 1, 0);
-			glVertex3f(R, L, -R);
-			glVertex3f(R, L, R);
-			glVertex3f(R, -L, R);
-			glVertex3f(R, -L, -R);
-
-			glColor3f(0.5f, 0, 1);
-			glVertex3f(-R, L, R);
-			glVertex3f(-R, L, -R);
-			glVertex3f(-R, -L, -R);
-			glVertex3f(-R, -L, R);
-
-			glColor3f(0, 1, 1);
-			glVertex3f(R, L, -R);
-			glVertex3f(-R, L, -R);
-			glVertex3f(-R, L, R);
-			glVertex3f(R, L, R);
-
-			glColor3f(1, 0, 0);
-			glVertex3f(-R, -L, -R);
-			glVertex3f(R, -L, -R);
-			glVertex3f(R, -L, R);
-			glVertex3f(-R, -L, R);
-
-		glEnd();
-
-		//Bordi neri
-		/*
-		glColor3f(0, 0, 0);
-		glBegin(GL_LINE_LOOP); //"prima faccia" del cubo
-		glVertex3f(-1,-1,1);
-		glVertex3f(1,-1,1);
-		glVertex3f(1,1,1);
-		glVertex3f(-1,1,1);
-		glEnd();
-
-		glBegin(GL_LINE_LOOP); //seconda faccia del cubo
-		glVertex3f(-1,-1,-1);
-		glVertex3f(1,-1,-1);
-		glVertex3f(1,1,-1);
-		glVertex3f(-1,1,-1);
-		glEnd();
-
-		glBegin(GL_LINES);//I 4 segmenti che collegano le facce
-			glVertex3f(-1,-1,-1);
-			glVertex3f(-1,-1,1);
-			glVertex3f(1,-1,-1);
-			glVertex3f(1,-1,1);
-			glVertex3f(1,1,-1);
-			glVertex3f(1,1,1);
-			glVertex3f(-1,1,-1);
-			glVertex3f(-1,1,1);
-		glEnd();
-		*/
-		glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
-
-	}
-
-};
 
 class DestructableObj: public Obj{
 
@@ -177,11 +54,20 @@ public:
 		b = (rand()%100)/100.0f;
 	}
 
-	//Metodo che aggiunge un edificio(riferimento) al settore
+	//Metodo che aggiunge un edificio(un riferimento ad un edificio) al settore
 	void addBuilding(Obj* _newBuilding){
 		buildings.push_back(_newBuilding);
 	}
 
+
+	//Disegna tutti gli edifici presenti nel settore
+	void drawBuildings(){
+		for(int i=0;i<buildings.size();i++){
+			buildings.at(i)->drawMe();
+		}
+	}
+
+	//Disegna il settore
 	void drawMe(int cull){
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -193,16 +79,16 @@ public:
 			glColor3f(r, g, b);
 
 			if(cull==0){//antiorario
-				glVertex3f(0, 0.1, 0);
-				glVertex3f(dimX, 0.1, 0);
-				glVertex3f(dimX, 0.1, -dimZ);
-				glVertex3f(0, 0.1, -dimZ);
+				glVertex3f(0, 0.04, 0);
+				glVertex3f(dimX, 0.04, 0);
+				glVertex3f(dimX, 0.04, -dimZ);
+				glVertex3f(0, 0.04, -dimZ);
 			}
 			else{//orario
-				glVertex3f(0, 0.1, 0);
-				glVertex3f(0, 0.1, dimZ);
-				glVertex3f(dimX, 0.1, dimZ);
-				glVertex3f(dimX, 0.1, 0);
+				glVertex3f(0, 0.04, 0);
+				glVertex3f(0, 0.04, dimZ);
+				glVertex3f(dimX, 0.04, dimZ);
+				glVertex3f(dimX, 0.04, 0);
 			}
 
 		glEnd();
@@ -467,22 +353,21 @@ void DisegnaTutto()
 	  Ad esempio con 1280x800 , x = 1.6 y
 	 */
 
-
-	//Carico la matrice identità,(blocca il pavimento)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	//Illuminazione
-    GLfloat aLite[4] = {0.2, 0.2, 0.2, 1};
-    GLfloat dLite[4] = {0.8, 0.8, 0.8, 1};
-    GLfloat sLite[4] = {0.8, 0.8, 0.8, 1};
+	/*
+		GLfloat aLite[4] = {0.2, 0.2, 0.2, 1};
+		GLfloat dLite[4] = {0.8, 0.8, 0.8, 1};
+		GLfloat sLite[4] = {0.8, 0.8, 0.8, 1};
 
-    glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
+		glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
 
-   glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
-
+	    glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
+	 */
 	//Osservatore
 	glRotatef(-ossB, 1, 0, 0); //imp per prima..
 	glRotatef(-ossA, 0, 1, 0); //imp
@@ -527,26 +412,69 @@ void DisegnaTutto()
 	glColor3f(1,0,0);
 	Cubo.Disegnati();
 
-
 	//Disegno settori
 	for(int i=0; i< myCitadel.size();i++){
 		if(i>2) myCitadel.at(i)->drawMe(1);
 		else    myCitadel.at(i)->drawMe(0);
 	}
 
-
-	//Disegno cittadella (TMP)
+	//Disegno cittadella
 	glColor3f(1,0,1);
-	for(int i=0;i<myObjCitadel.size();i++)
-		myObjCitadel.at(i).drawMe();
+	for(int i=0;i<myCitadel.size();i++){
+		myCitadel.at(i)->drawBuildings();
+	}
 
-	//glutSolidOctahedron();
-	//glutSolidTetrahedron();
-	//glutSolidTeapot(0.2f);
+	//Disegna strade
+	int halfSect = myCitadel.size()/2;
+
+	int roadA = 0;
+	int roadB = 0;
+	float roadY = 0.06f;
+
+	for(int j=0;j<halfSect;j++){
+		roadA +=  myCitadel.at(j)->getDimX();
+		roadB +=  myCitadel.at(j+halfSect)->getDimX();
+		if(j<halfSect-1){
+			int interRoadUp   = max( myCitadel.at(j)->getDimZ(),myCitadel.at(j+1)->getDimZ() );
+			int interRoadDown = max( myCitadel.at(j+halfSect)->getDimZ(),myCitadel.at(j+halfSect+1)->getDimZ() );
+
+			glPushMatrix();
+			glTranslatef(myCitadel.at(j+1)->getX()-0.25f,0,-40);
+			glBegin(GL_QUADS);
+				//Quartieri alti
+				glColor3f(0, 0, 0);
+				glVertex3f(0, roadY, 0);
+				glVertex3f(0.5f, roadY, 0);
+				glVertex3f(0.5f, roadY, -1*interRoadUp);
+				glVertex3f(0, roadY, -1*interRoadUp);
+			glEnd();
+			glPopMatrix();
+			glPushMatrix();
+			glTranslatef(myCitadel.at(j+halfSect+1)->getX()-0.25f,0,-40);
+			glBegin(GL_QUADS);
+				//Quartieri bassi
+				glColor3f(0, 0, 0);
+				glVertex3f(0, roadY, 0);
+				glVertex3f(0, roadY, interRoadDown);
+				glVertex3f(0.5f, roadY, interRoadDown);
+				glVertex3f(0.5f, roadY, 0);
+			glEnd();
+			glPopMatrix();
+		}
+	}
+	int road = max(roadA,roadB);
+	glTranslatef(-15,0,-39.5f);
+
+	glBegin(GL_QUADS);
+		glColor3f(0, 0, 0);
+		glVertex3f(0, roadY, 0);
+		glVertex3f(road, roadY, 0);
+		glVertex3f(road, roadY, -0.5f);
+		glVertex3f(0, roadY, -0.5f);
+	glEnd();
+
 
 	glutSwapBuffers();
-	//disegnaBarra();
-
 }
 
 
@@ -598,12 +526,14 @@ int main(int argc, char **argv)
 	glEnable(GL_CULL_FACE);
 
 	//Illuminazione
+	/*
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-
 	GLfloat black[4]= {0,0,0,1};
+
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
+	 */
 
 	//Toglie il cursore
 	glutSetCursor(GLUT_CURSOR_NONE);
@@ -622,23 +552,7 @@ int main(int argc, char **argv)
 	 *
 	 */
 	int maxX = 30;
-/*
-	for(int i=0;i<6;i++){
-		int myX = rand() % 20 +1;
 
-		Sector* newSect = new Sector();
-		//myCitadel.push_back()
-	}
-*/
-	/*
-	myCitadel.push_back(new Sector(-15,0,-40, 20,0,40));
-	myCitadel.push_back(new Sector(  5,0,-40,  5,0,20));
-	myCitadel.push_back(new Sector( 10,0,-40,  5,0,30));
-
-	myCitadel.push_back(new Sector(-15,0,-40, 20,0,15));
-	myCitadel.push_back(new Sector(  5,0,-40,  5,0,20));
-	myCitadel.push_back(new Sector( 10,0,-40,  5,0,20));
-*/
 	//coord x da cui partire a generare i settori
 	int startX = -15;
 	//asse centrale della citta
@@ -656,7 +570,7 @@ int main(int argc, char **argv)
 
 	/*
 	 * Costruisco i quartieri con coordinate assolute, questo mi facilita la gestione di eventi
-	 * che si verificano lungo i confini tra i vari quartieri
+	 * che si verificano lungo i confini tra i vari quartieri e all'interno di essi
      */
 	cout<< "## Building city... "<<endl;
 	for(int j=0; j<sectorPerLine*2; j++){
@@ -697,7 +611,7 @@ int main(int argc, char **argv)
 
 			Obj* newBuilding = new Obj(relPosX,0,-1*relPosZ, 0,myrY,0);
 			newSector->addBuilding(newBuilding);
-			myObjCitadel.push_back(*newBuilding);
+			//myObjCitadel.push_back(*newBuilding);
 		}
 		cout<< "\n Limiter   for sector " << j << " : " << limiter << endl;
 		cout<< " Effective for sector " << j << " : " << toBuild << endl;
