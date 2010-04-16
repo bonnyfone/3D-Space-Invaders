@@ -1,5 +1,5 @@
 main.d main.o: ../main.cpp ../Obj.h ../Sector.h ../Building.h \
- ../DistructableObj.h
+ ../DistructableObj.h ../Bomb.h ../MobileObj.h
 
 ../Obj.h:
 
@@ -8,3 +8,7 @@ main.d main.o: ../main.cpp ../Obj.h ../Sector.h ../Building.h \
 ../Building.h:
 
 ../DistructableObj.h:
+
+../Bomb.h:
+
+../MobileObj.h:

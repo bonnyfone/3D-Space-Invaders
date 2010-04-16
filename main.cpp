@@ -16,7 +16,7 @@
 #include "Obj.h"
 #include "Sector.h"
 #include "Building.h"
-
+#include "Bomb.h"
 
 void CambiaDim(int, int);
 void DisegnaTutto();
@@ -30,6 +30,9 @@ using namespace std;
 Obj* myObjs;
 vector<Obj> myObjCitadel;
 vector<Sector*> myCitadel;
+vector<Bomb*> myBombs;
+long delta_t;
+
 
 //Array globale per le luce
 GLfloat PosLite[4]={2,2,2,1};
@@ -245,9 +248,16 @@ void CambiaDim(int w, int h)
 void gira(){
 	Cubo.rX -= 0.1f;
 	Cubo.Disegnati();
+
+
+	for(int i=0;i<myBombs.size();i++){
+		myBombs.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
+	}
+	delta_t = glutGet(GLUT_ELAPSED_TIME);
+
 	glutPostRedisplay();
 	//glutTimerFunc(33,gira,1);
-	glutIdleFunc(gira);
+	//glutIdleFunc(gira);
 }
 
 void DisegnaTutto()
@@ -379,6 +389,7 @@ void DisegnaTutto()
 		}
 	}
 	int road = max(roadA,roadB);
+	glPushMatrix();
 	glTranslatef(-15,0,-39.5f);
 
 	glBegin(GL_QUADS);
@@ -388,7 +399,13 @@ void DisegnaTutto()
 		glVertex3f(road, roadY, -0.5f);
 		glVertex3f(0, roadY, -0.5f);
 	glEnd();
+	glPopMatrix();
 
+
+	//Bombe (TMP)
+
+	for(int i=0; i< myBombs.size(); i++)
+		myBombs.at(i)->drawMe();
 
 	glutSwapBuffers();
 }
@@ -540,24 +557,16 @@ int main(int argc, char **argv)
 		yIterator -= myWidth;
 	}
 
-	/*
-	//Crea la cittadella in modo casuale
-	for(int i=0; i < dim_cit ;i++){
 
+	//Bombe (TMP da modificare, devono crearsi dinamicamente mentre si gioca)
+	for(int i = 0;i<10;i++){
+		int meno=1;
+		if(rand()%2 ==0)meno=-1;
 
-	  int meno;
-	  if(rand()%2 == 0)meno=-1;
-	  else meno=1;
-
-	  int myX = (rand() % 15 + 1)*meno;
-	  int myZ = rand() % 40 + 20;
-	  int myrY = rand() % 360;
-
-	  //myObjs[i] = Obj(myX,0,-1*myZ,0,myrY,0);
-	  //myObjCitadel.push_back(Obj(myX,0,-1*myZ,0,myrY,0));
-
+		Bomb* myBomb = new Bomb(meno*rand()%15,20,-rand()%50);
+		myBombs.push_back(myBomb);
+		cout << " bomba " << myBomb->getX() << " " << myBomb->getY() << " " << myBomb->getZ() << endl;
 	}
-	*/
 
 	//Posizione iniziale dell'osservatore
 	ossY=14;
@@ -565,6 +574,7 @@ int main(int argc, char **argv)
 	ossX=0;
 	ossB=-16;
 
+	delta_t= glutGet(GLUT_ELAPSED_TIME);
 	glutMainLoop();
 	return(0);
 }
