@@ -10,6 +10,9 @@ MobileObj::MobileObj(float _X,float _Y,float _Z, float _dimX, float _dimY, float
 
 float MobileObj::getvY()const {return vY;};
 
+void MobileObj::move(long time){/*overridare*/};
+
+
 MobileObj::~MobileObj() {
 	// TODO Auto-generated destructor stub
 }

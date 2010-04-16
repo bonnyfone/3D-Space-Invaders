@@ -13,7 +13,7 @@ Bomb::Bomb(float _X,float _Y,float _Z) : Obj(_X,_Y,_Z, 0.5f,0.5f,0.5f), Distruct
 
 void Bomb::move(long time){
 
-	setY(getY()-getvY()*time/2000);
+	setY(getY()-getvY()*time/500);
 
 };
 

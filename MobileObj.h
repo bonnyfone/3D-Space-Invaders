@@ -16,7 +16,7 @@ public:
 	//Costruttore a 9 parametri (posizione,dimensione,velocità)
 	MobileObj(float,float,float, float,float,float, float,float,float);
 
-	void move(long);
+	virtual void move(long);
 
 	float getvY() const;
 
