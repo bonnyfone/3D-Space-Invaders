@@ -11,26 +11,26 @@ using namespace std;
 
 	//Costruttore
 	Obj::Obj(){
-		X=0; Y=0; Z=-10; rX=rY=rZ=vX=vY=vZ=0;
+		X=0; Y=0; Z=-10; rX=rY=rZ=dimX=dimY=dimZ=0;
 		randomizeDimension();
 		cout << "costruttore 0 param";
 	};
 
 	//Costruttore a 3 parametri (posizione)
 	Obj::Obj(float _X,float _Y,float _Z){
-		X=_X; Y=_Y; Z=_Z; rX=rY=rZ=vX=vY=vZ=0;
+		X=_X; Y=_Y; Z=_Z; rX=rY=rZ=dimX=dimY=dimZ=0;
 		randomizeDimension();
 	};
 
-	//Costruttore a 6 parametri (posizione+rotazione)
+	//Costruttore a 6 parametri (posizione+dimensione)
 	Obj::Obj(float _X,float _Y,float _Z,float _rX,float _rY,float _rZ){
-		X=_X; Y=_Y; Z=_Z; rX=_rX; rY=_rY; rZ=_rZ; vX=vY=vZ=0;
+		X=_X; Y=_Y; Z=_Z; rX=rY=rZ=0; dimX=_rX; dimY=_rY; dimZ=_rZ;
 		randomizeDimension();
 	};
 
-	//Costruttore a 6 parametri (posizione+rotazione+velocita)
+	//Costruttore a 6 parametri (posizione+dimensione+rotazione)
 	Obj::Obj(float _X,float _Y,float _Z,float _rX,float _rY,float _rZ,float _vX,float _vY,float _vZ){
-		X=_X; Y=_Y; Z=_Z; rX=_rX; rY=_rY; rZ=_rZ; vX=_vX; vY=_vY; vZ=_vZ;
+		X=_X; Y=_Y; Z=_Z; rX=_vX; rY=_vY; rZ=_vZ; dimX=_rX; dimY=_rY; dimZ=_rZ;
 		randomizeDimension();
 	};
 
@@ -132,5 +132,13 @@ using namespace std;
 		glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 	}
+
+	/* Set & get */
+	float Obj::getDimX(){return dimX;};
+	float Obj::getDimY(){return dimY;};
+	float Obj::getDimZ(){return dimZ;};
+	float Obj::getX(){return X;};
+	float Obj::getY(){return Y;};
+	float Obj::getZ(){return Z;};
 
 

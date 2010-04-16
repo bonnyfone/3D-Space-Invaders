@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "obj.h"
-
+#include "sector.h"
 
 void CambiaDim(int, int);
 void DisegnaTutto();
@@ -30,84 +30,7 @@ private:
 
 };
 
-/*Classe logica che rappresenta i settori(quartieri) della cittadella*/
-class Sector{
 
-private:
-
-	int X,Y,Z;
-	int dimX,dimY,dimZ;
-	vector<Obj*> buildings;
-
-	float r,g,b;
-
-public:
-	//Costruttore
-	Sector(int _X,int _Y,int _Z,int _dimX,int _dimY,int _dimZ){
-		X=_X; Y=_Y; Z=_Z; dimX=_dimX; dimY=_dimY; dimZ=_dimZ;
-		randomColor();
-	}
-
-	void randomColor(){
-		r = (rand()%100)/100.0f;
-		g = (rand()%100)/100.0f;
-		b = (rand()%100)/100.0f;
-	}
-
-	//Metodo che aggiunge un edificio(un riferimento ad un edificio) al settore
-	void addBuilding(Obj* _newBuilding){
-		buildings.push_back(_newBuilding);
-	}
-
-
-	//Disegna tutti gli edifici presenti nel settore
-	void drawBuildings(){
-		for(int i=0;i<buildings.size();i++){
-			buildings.at(i)->drawMe();
-		}
-	}
-
-	//Disegna il settore
-	void drawMe(int cull){
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-
-	    glTranslatef(X,Y,Z);
-
-		glBegin(GL_QUADS);
-
-			glColor3f(r, g, b);
-
-			if(cull==0){//antiorario
-				glVertex3f(0, 0.04, 0);
-				glVertex3f(dimX, 0.04, 0);
-				glVertex3f(dimX, 0.04, -dimZ);
-				glVertex3f(0, 0.04, -dimZ);
-			}
-			else{//orario
-				glVertex3f(0, 0.04, 0);
-				glVertex3f(0, 0.04, dimZ);
-				glVertex3f(dimX, 0.04, dimZ);
-				glVertex3f(dimX, 0.04, 0);
-			}
-
-		glEnd();
-
-		glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
-
-	}
-
-	/* Set & get */
-	int getDimX(){return dimX;}
-	int getDimY(){return dimY;}
-	int getDimZ(){return dimZ;}
-	int getX(){return X;}
-	int getY(){return Y;}
-	int getZ(){return Z;}
-	vector<Obj*> getBuildings(){return buildings;}
-
-
-};
 
 /* ################################## GLOBALI ################################## */
 /*Introdotto osservatore*/
@@ -609,7 +532,7 @@ int main(int argc, char **argv)
 			int relPosZ = meno*((rand() % max((myHeight-6),1))+3) - newSector->getZ(); //<<<<<<<<<<<< DA AGGIUSTARE PER NON FAR SFORARE GLI EDIFICI
 			int myrY = rand() % 360;
 
-			Obj* newBuilding = new Obj(relPosX,0,-1*relPosZ, 0,myrY,0);
+			Obj* newBuilding = new Obj(relPosX,0,-1*relPosZ, 0,0,0, 0,myrY,0);
 			newSector->addBuilding(newBuilding);
 			//myObjCitadel.push_back(*newBuilding);
 		}
