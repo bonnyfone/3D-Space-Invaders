@@ -1,4 +1,3 @@
-
 #include "Obj.h"
 using namespace std;
 
@@ -6,9 +5,10 @@ using namespace std;
 #define DISTRUCTABLEOBJ_H_
 
 /* Classe che rappresenta il tipo base di tutti gli oggetti distruggibili*/
-class DistructableObj: public Obj
+class DistructableObj: public virtual Obj
 {
 private:
+	//la "vita" dell'oggetto. L'oggetto è completamente distrutto quando L <= 0
     float L;
 
 public:
@@ -25,6 +25,7 @@ public:
 
     //ritorna quanta vita ha l'oggetto
     float getL() const;
+    void setL(float);
 
     virtual ~DistructableObj();
 

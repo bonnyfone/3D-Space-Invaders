@@ -21,6 +21,10 @@ DistructableObj::DistructableObj(float _X,float _Y,float _Z,float _dimX,float _d
 float DistructableObj::getL() const{ return L;
 }
 
+void DistructableObj::setL(float _L){
+	L=_L;
+}
+
 void DistructableObj::randomizeLife(){
 	L = (rand()%400+20)/100.0f;
 	cout << "L:" << L;
