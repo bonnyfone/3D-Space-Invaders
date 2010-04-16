@@ -4,19 +4,25 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../main.cpp \
-../obj.cpp \
-../sector.cpp 
+../Building.cpp \
+../DistructableObj.cpp \
+../Obj.cpp \
+../Sector.cpp \
+../main.cpp 
 
 OBJS += \
-./main.o \
-./obj.o \
-./sector.o 
+./Building.o \
+./DistructableObj.o \
+./Obj.o \
+./Sector.o \
+./main.o 
 
 CPP_DEPS += \
-./main.d \
-./obj.d \
-./sector.d 
+./Building.d \
+./DistructableObj.d \
+./Obj.d \
+./Sector.d \
+./main.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

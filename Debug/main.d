@@ -1,5 +1,10 @@
-main.d main.o: ../main.cpp ../obj.h ../sector.h
+main.d main.o: ../main.cpp ../Obj.h ../Sector.h ../Building.h \
+ ../DistructableObj.h
 
-../obj.h:
+../Obj.h:
 
-../sector.h:
+../Sector.h:
+
+../Building.h:
+
+../DistructableObj.h:

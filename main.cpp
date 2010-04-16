@@ -13,23 +13,16 @@
 #include <GL/glut.h>
 #include <vector>
 
-#include "obj.h"
-#include "sector.h"
+#include "Obj.h"
+#include "Sector.h"
+#include "Building.h"
+
 
 void CambiaDim(int, int);
 void DisegnaTutto();
 void TastoPremuto(unsigned char, int, int);
 
 using namespace std;
-
-
-class DestructableObj: public Obj{
-
-private:
-	int life;
-
-};
-
 
 
 /* ################################## GLOBALI ################################## */
@@ -532,7 +525,7 @@ int main(int argc, char **argv)
 			int relPosZ = meno*((rand() % max((myHeight-6),1))+3) - newSector->getZ(); //<<<<<<<<<<<< DA AGGIUSTARE PER NON FAR SFORARE GLI EDIFICI
 			int myrY = rand() % 360;
 
-			Obj* newBuilding = new Obj(relPosX,0,-1*relPosZ, 0,0,0, 0,myrY,0);
+			Building* newBuilding = new Building(relPosX,0,-1*relPosZ, 0,myrY,0);
 			newSector->addBuilding(newBuilding);
 			//myObjCitadel.push_back(*newBuilding);
 		}
