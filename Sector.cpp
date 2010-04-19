@@ -57,3 +57,22 @@
 
 
 	vector<Building*> Sector::getBuildings(){return buildings;};
+
+
+	Building* Sector::getRandomBuilding(){
+		register int range = buildings.size();
+		if(range>0)
+			return buildings.at(rand()%range);
+		else return NULL;
+	};
+
+
+	void Sector::removeBuilding(Building* myBuilding){
+		cout << endl << "Into removeBuildings()"<<endl;
+		for(register unsigned int i=0;i<buildings.size();i++){
+			if( myBuilding == buildings.at(i) ){
+				buildings.erase(buildings.begin()+i);
+				if(myBuilding->isAlone())delete myBuilding;
+			}
+		}
+	}

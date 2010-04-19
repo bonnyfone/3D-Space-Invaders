@@ -103,5 +103,5 @@ glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del co
 }
 
 Building::~Building() {
-	// TODO Auto-generated destructor stub
+	cout << "##### Building cancellato ######" << endl;
 }

@@ -32,6 +32,7 @@ vector<Obj> myObjCitadel;
 vector<Sector*> myCitadel;
 vector<Bomb*> myBombs;
 long delta_t;
+int sectors=6;
 
 
 //Array globale per le luce
@@ -244,15 +245,47 @@ void CambiaDim(int w, int h)
 	//glViewport(0,100,w,h);
 }
 
-//void gira(int value=0){
-void gira(){
+//CALLBACK per l'evoluzione del gioco
+void Progress(){
 	Cubo.rX -= 0.1f;
 	Cubo.Disegnati();
 
 
-	for(int i=0;i<myBombs.size();i++){
+	//Check bombe
+	for(register unsigned int i=0;i<myBombs.size();i++){
 		myBombs.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
+		if(bool coll=myBombs.at(i)->checkCollision() || myBombs.at(i)->getY() <= 0){
+			Bomb* check = myBombs.at(i);
+			myBombs.erase(myBombs.begin()+i);
+
+			check->clearRef();
+			delete check;
+			i--;
+		}
 	}
+
+	/* Nuove bombe totalmente casuali */
+
+	/*register int meno=1;
+	if(rand()%2 ==0)meno=-1;
+	register unsigned int newbombs = rand() % 35;
+	if(newbombs >=30) myBombs.push_back(new Bomb(meno*rand()%15,20,-rand()%50));
+	*/
+
+	/* Nuove bombe su edifici casuali */
+	register unsigned int newbombs = rand() % 30;
+	if(newbombs >=25){
+		register int quarter = rand()%6;
+		//register int randomBuilding =
+		Sector* tmpSector = myCitadel.at(quarter);
+		Building* tmpBuilding = tmpSector->getRandomBuilding();
+		if(tmpBuilding){
+			Bomb* newBomb = new Bomb(tmpBuilding->getX(),20,tmpBuilding->getZ(),  tmpSector,tmpBuilding);
+			myBombs.push_back(newBomb);
+		}
+	}
+
+	//Aggiorno il tempo
 	delta_t = glutGet(GLUT_ELAPSED_TIME);
 
 	glutPostRedisplay();
@@ -472,7 +505,7 @@ int main(int argc, char **argv)
 	glutSetCursor(GLUT_CURSOR_NONE);
 
 	//glutTimerFunc(33,gira,1);
-	glutIdleFunc(gira);
+	glutIdleFunc(Progress);
 
 	/* initialize random seed: */
 	srand ( time(NULL) );
@@ -558,6 +591,7 @@ int main(int argc, char **argv)
 	}
 
 
+	/*
 	//Bombe (TMP da modificare, devono crearsi dinamicamente mentre si gioca)
 	for(int i = 0;i<10;i++){
 		int meno=1;
@@ -566,7 +600,7 @@ int main(int argc, char **argv)
 		Bomb* myBomb = new Bomb(meno*rand()%15,20,-rand()%50);
 		myBombs.push_back(myBomb);
 		cout << " bomba " << myBomb->getX() << " " << myBomb->getY() << " " << myBomb->getZ() << endl;
-	}
+	}*/
 
 	//Posizione iniziale dell'osservatore
 	ossY=14;

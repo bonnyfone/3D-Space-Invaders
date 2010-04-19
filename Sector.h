@@ -23,6 +23,8 @@ public:
 	//Metodo che aggiunge un edificio(un riferimento ad un edificio) al settore
 	void addBuilding(Building*);
 
+	void removeBuilding(Building*);
+
 
 	//Disegna tutti gli edifici presenti nel settore
 	void drawBuildings();
@@ -32,6 +34,8 @@ public:
 
 
 	vector<Building*> getBuildings();
+
+	Building* getRandomBuilding();
 
 };
 

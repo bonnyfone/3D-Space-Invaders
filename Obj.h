@@ -18,6 +18,8 @@ private:
 	float rX,rY,rZ;
 	float dimX,dimY,dimZ;
 
+	int refering;
+
 public:
 	//Costruttore senza parametri
 	Obj();
@@ -47,6 +49,11 @@ public:
 	void setX(float);
 	void setY(float);
 	void setZ(float);
+
+	void addRefer();
+	void removeRefer();
+	bool isAlone();
+
 
 	virtual ~Obj(){};
 };
