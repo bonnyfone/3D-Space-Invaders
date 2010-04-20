@@ -7,12 +7,12 @@
 
 #include "Bomb.h"
 
-Bomb::Bomb(float _X,float _Y,float _Z) : Obj(_X,_Y,_Z, 0.5f,0.5f,0.5f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, 0,1,0) {
+Bomb::Bomb(float _X,float _Y,float _Z) : Obj(_X,_Y,_Z, 0.4f,0.4f,0.4f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, 0,1,0) {
 	setL(1.0f);
 	cout << "New bomb created at (" << _X << "," << _Y << "," << _Z << ")" << endl;
 }
 
-Bomb::Bomb(float _X,float _Y,float _Z, Sector* mySector, Building* myBuilding) : Obj(_X,_Y,_Z, 0.5f,0.5f,0.5f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, 0,1,0) {
+Bomb::Bomb(float _X,float _Y,float _Z, Sector* mySector, Building* myBuilding) : Obj(_X,_Y,_Z, 0.4f,0.4f,0.4f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, 0,1,0) {
 	setL(1.0f);
 	currentSector = mySector;
 	//possibileTarget.push_back(myBuilding);
@@ -23,7 +23,6 @@ Bomb::Bomb(float _X,float _Y,float _Z, Sector* mySector, Building* myBuilding) :
 void Bomb::move(long time){
 	//Cinematica della bomba
 	setY(getY()-getvY()*time/50);
-
 };
 
 void Bomb::autodetectBuildings(Building* myBuilding){

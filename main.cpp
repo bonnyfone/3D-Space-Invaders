@@ -252,7 +252,6 @@ void Progress(){
 	Cubo.rX -= 0.1f;
 	Cubo.Disegnati();
 
-
 	//Check bombe
 	for(register unsigned int i=0;i<myBombs.size();i++){
 		myBombs.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
@@ -276,7 +275,7 @@ void Progress(){
 
 	/* Nuove bombe su edifici casuali */
 	register unsigned int newbombs = rand() % 30;
-	if(newbombs >=25){
+	if(newbombs >=27){
 		register int quarter = rand()%6;
 		//register int randomBuilding =
 		Sector* tmpSector = myCitadel.at(quarter);
@@ -377,14 +376,14 @@ void DisegnaTutto()
 	Cubo.Disegnati();
 
 	//Disegno settori
-	for(int i=0; i< myCitadel.size();i++){
+	for(register unsigned int i=0; i< myCitadel.size();i++){
 		if(i>2) myCitadel.at(i)->drawMe(1);
 		else    myCitadel.at(i)->drawMe(0);
 	}
 
 	//Disegno cittadella
 	glColor3f(1,0,1);
-	for(int i=0;i<myCitadel.size();i++){
+	for(register unsigned int i=0;i<myCitadel.size();i++){
 		myCitadel.at(i)->drawBuildings();
 	}
 
@@ -440,7 +439,7 @@ void DisegnaTutto()
 	glPopMatrix();
 
 	//Bombe (TMP)
-	for(int i=0; i< myBombs.size(); i++)
+	for(register unsigned int i=0; i< myBombs.size(); i++)
 		myBombs.at(i)->drawMe();
 
 	glutSwapBuffers();
@@ -454,19 +453,25 @@ void MuoviMouse (int button, int state, int x, int y){
 
 }
 
+void processTimedOperation(int i=0){
+	myCannon->targetingAnimation();
+	glutTimerFunc(30,processTimedOperation,1);
+}
+
 void processMouseActiveMotion(int x, int y){
 
 	//Cubo.X = (x-640)/80;
 	//Cubo.Y = (-y+400)/50;
 	cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
-	register float halfScreen = 640.0f;
 
+	register float halfScreen = 640.0f;
 	register float myVal = ((x-halfScreen)/halfScreen);
 	register float angle = acos(myVal)*180.0f/3.14f - 90.0f;
 	angle=angle /100*80;
 	cout << "Mouse acos in gradi = " << angle << endl;
 
 	myCannon->setrZ(angle);
+
 
 
 	halfScreen = 400.0f;
@@ -477,9 +482,6 @@ void processMouseActiveMotion(int x, int y){
 
 	myCannon->setrX(angle);
 
-
-
-	//myCannon->
 }
 
 
@@ -529,7 +531,7 @@ int main(int argc, char **argv)
 	//Toglie il cursore
 	glutSetCursor(GLUT_CURSOR_NONE);
 
-	//glutTimerFunc(33,gira,1);
+	glutTimerFunc(50,processTimedOperation,1);
 	glutIdleFunc(Progress);
 
 	/* initialize random seed: */

@@ -12,9 +12,13 @@
 
 class Cannon: public Obj {
 public:
+	float targeting;
+
 	Cannon();
 
 	void drawMe();
+
+	void targetingAnimation();
 
 	virtual ~Cannon();
 };
