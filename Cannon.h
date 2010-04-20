@@ -11,14 +11,21 @@
 #include "Obj.h"
 
 class Cannon: public Obj {
-public:
+
+private:
+	bool targetingSystem;
 	float targeting;
+
+public:
+
 
 	Cannon();
 
 	void drawMe();
 
 	void targetingAnimation();
+
+	void swapTargetingEnabled();
 
 	virtual ~Cannon();
 };

@@ -29,7 +29,7 @@ using namespace std;
 /* ################################## GLOBALI ################################## */
 /*Introdotto osservatore*/
 Obj* myObjs;
-vector<Obj> myObjCitadel;
+//vector<Obj> myObjCitadel;
 vector<Sector*> myCitadel;
 vector<Bomb*> myBombs;
 Cannon* myCannon;
@@ -217,6 +217,7 @@ void TastoPremuto(unsigned char t, int, int)
 	if(t == 'g') ossB -= 2;
 	if(t == 'h') ossB += 2;
 
+
 	//cambiare angolo focale (piano near)
 	/*  if(t == '1') pNear *= 1.1f;
     if(t == '2') pNear *= 0.9f;
@@ -229,6 +230,7 @@ void TastoPremuto(unsigned char t, int, int)
 
 	if(t == 27) exit(0);
 
+	if(t == 'x') myCannon->swapTargetingEnabled();
 	/*	if(t == 'q'){
 		if(glutGetModifiers() == GLUT_ACTIVE_CTRL)
 		exit(0);
