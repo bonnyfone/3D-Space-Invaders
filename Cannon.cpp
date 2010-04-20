@@ -21,7 +21,6 @@ void Cannon::drawMe(){
 	glRotatef(getrZ(), 0, 0, 1);
 
 	//glColor3f((rand()%100) / 100.0f, (rand()%100) / 100.0f, (rand()%100) / 100.0f);
-	glColor3f(0.2f,0.2f,0.2f);
 	 float alfa;
 	     float s,c;
 	     float step;
@@ -30,6 +29,13 @@ void Cannon::drawMe(){
 	     //Poco efficiente! Perchè quando disegno i rettangoli in sequenza, abbiamo sempre un lato in comune tra un rettangolo e quello che segue.
 	     // meglio usare GL_QUAD_STRIP!!! (vedi sotto)
 
+	     glColor3f(0.8f,0.8f,0.8f);
+	     glBegin(GL_LINES);
+			 glVertex3f(0, 0, 0);
+			 glVertex3f(0, 100, 0);
+	     glEnd();
+
+	     glColor3f(0.2f,0.2f,0.2f);
 	     glBegin(GL_QUAD_STRIP);
 	      for(alfa = step; alfa < 6.29f; alfa += step) //messo di proposito 6.29f per esser sicuri di fare un giro completo (circa 2pigreco=360°)
 	      {

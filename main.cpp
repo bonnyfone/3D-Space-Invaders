@@ -336,6 +336,9 @@ void DisegnaTutto()
 	//glPushMatrix();//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< SALVO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
+	//cannone
+	myCannon->drawMe();
+
 	//Pavimento..
 	float a;
 	glColor3f(0.0f, 0.8f, 0.0f);
@@ -440,8 +443,6 @@ void DisegnaTutto()
 	for(int i=0; i< myBombs.size(); i++)
 		myBombs.at(i)->drawMe();
 
-	myCannon->drawMe();
-
 	glutSwapBuffers();
 }
 
@@ -457,14 +458,26 @@ void processMouseActiveMotion(int x, int y){
 
 	//Cubo.X = (x-640)/80;
 	//Cubo.Y = (-y+400)/50;
-
+	cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
 	register float halfScreen = 640.0f;
 
-	cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
-
-	register float myCos = ((x-halfScreen)/halfScreen);
-	register float angle = acos(myCos)*180.0f/3.14f;
+	register float myVal = ((x-halfScreen)/halfScreen);
+	register float angle = acos(myVal)*180.0f/3.14f - 90.0f;
+	angle=angle /100*80;
 	cout << "Mouse acos in gradi = " << angle << endl;
+
+	myCannon->setrZ(angle);
+
+
+	halfScreen = 400.0f;
+	myVal = ((y-halfScreen)/halfScreen);
+	angle = acos(myVal)*180.0f/3.14f - 180.0f;
+	angle=min(-30.0f,angle /100*70);
+	cout << "Mouse acos in gradi = " << angle << endl;
+
+	myCannon->setrX(angle);
+
+
 
 	//myCannon->
 }
@@ -499,6 +512,7 @@ int main(int argc, char **argv)
 	glutMotionFunc(processMouseActiveMotion);
 	glutPassiveMotionFunc(processMouseActiveMotion);
 
+
 	glEnable(GL_DEPTH_TEST); //abilita zbuffer
 	glEnable(GL_CULL_FACE);
 
@@ -513,7 +527,7 @@ int main(int argc, char **argv)
 	 */
 
 	//Toglie il cursore
-	//glutSetCursor(GLUT_CURSOR_NONE);
+	glutSetCursor(GLUT_CURSOR_NONE);
 
 	//glutTimerFunc(33,gira,1);
 	glutIdleFunc(Progress);
@@ -619,7 +633,7 @@ int main(int argc, char **argv)
 	ossY=14;
 	ossZ=0;
 	ossX=0;
-	ossB=-16;
+	ossB=-24;
 
 	delta_t= glutGet(GLUT_ELAPSED_TIME);
 	glutMainLoop();
