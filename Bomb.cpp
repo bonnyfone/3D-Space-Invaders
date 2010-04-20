@@ -42,11 +42,11 @@ bool Bomb::checkCollision(){
 	bool ris=false;
 	for(unsigned register int i = 0; i< possibileTarget.size(); i++){
 		if(possibileTarget.at(i)){
-			if(getY()-getDimY() <= possibileTarget.at(i)->getL()){
+			if(getY()-getDimY()/2 <= possibileTarget.at(i)->getL()){
 				possibileTarget.at(i)->setL(possibileTarget.at(i)->getL()-0.5f);
 
 				Building* toRemove = possibileTarget.at(i);
-				toRemove->removeRefer();
+				//toRemove->removeRefer();
 
 
 				if(possibileTarget.at(i)->getL() <= 0.0f){
@@ -54,9 +54,12 @@ bool Bomb::checkCollision(){
 					currentSector->removeBuilding(toRemove);
 				}
 
-				this->removePossibleTarget(toRemove);
-				i--;
+				//this->removePossibleTarget(toRemove);
+				//i--;
 				ris=true;
+
+				//MI FERMO SUBITO?
+				//return ris;
 			}
 		}
 	}
@@ -66,6 +69,10 @@ bool Bomb::checkCollision(){
 void Bomb::clearRef(){
 	for(unsigned int j=0; j< possibileTarget.size(); j++){
 		possibileTarget.at(j)->removeRefer();
+		if(possibileTarget.at(j)->isAlone() && possibileTarget.at(j)->getL()<=0.0f){
+			delete possibileTarget.at(j);
+			cout << "removed asddasd"<<endl;
+		}
 	}
 };
 

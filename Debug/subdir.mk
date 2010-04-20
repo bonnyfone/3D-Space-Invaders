@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../Bomb.cpp \
 ../Building.cpp \
+../Cannon.cpp \
 ../DistructableObj.cpp \
 ../MobileObj.cpp \
 ../Obj.cpp \
@@ -15,6 +16,7 @@ CPP_SRCS += \
 OBJS += \
 ./Bomb.o \
 ./Building.o \
+./Cannon.o \
 ./DistructableObj.o \
 ./MobileObj.o \
 ./Obj.o \
@@ -24,6 +26,7 @@ OBJS += \
 CPP_DEPS += \
 ./Bomb.d \
 ./Building.d \
+./Cannon.d \
 ./DistructableObj.d \
 ./MobileObj.d \
 ./Obj.d \

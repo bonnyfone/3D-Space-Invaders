@@ -2,6 +2,7 @@
 #include "Building.h"
 
 Building::Building(float _X,float _Y,float _Z,float _rX,float _rY,float _rZ) : Obj(_X,_Y,_Z,0,0,0,_rX,_rY,_rZ), DistructableObj(_X,_Y,_Z,0,0,0,_rX,_rY,_rZ) {
+	cout << "##### Building creato! ######" << endl;
 	randomizeDimension();
 
 }

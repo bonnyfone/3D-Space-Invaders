@@ -49,6 +49,9 @@ public:
 	void setX(float);
 	void setY(float);
 	void setZ(float);
+	void setrX(float);
+	void setrY(float);
+	void setrZ(float);
 
 	void addRefer();
 	void removeRefer();

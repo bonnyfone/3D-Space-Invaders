@@ -45,6 +45,10 @@ using namespace std;
 	void Obj::setX(float _X){ X = _X;};
 	void Obj::setY(float _Y){ Y = _Y;};
 	void Obj::setZ(float _Z){ Z = _Z;};
+	void Obj::setrX(float _rX){ rX = _rX;};
+	void Obj::setrY(float _rY){ rY = _rY;};
+	void Obj::setrZ(float _rZ){ rZ = _rZ;};
+
 
 	void Obj::addRefer(){
 		refering++;

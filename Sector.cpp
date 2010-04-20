@@ -68,11 +68,14 @@
 
 
 	void Sector::removeBuilding(Building* myBuilding){
-		cout << endl << "Into removeBuildings()"<<endl;
 		for(register unsigned int i=0;i<buildings.size();i++){
 			if( myBuilding == buildings.at(i) ){
 				buildings.erase(buildings.begin()+i);
-				if(myBuilding->isAlone())delete myBuilding;
+				if(myBuilding->isAlone()){
+					cout << "Building autodelete ";
+					//delete myBuilding;
+				}
+				return;
 			}
 		}
 	}

@@ -17,6 +17,7 @@
 #include "Sector.h"
 #include "Building.h"
 #include "Bomb.h"
+#include "Cannon.h"
 
 void CambiaDim(int, int);
 void DisegnaTutto();
@@ -31,6 +32,7 @@ Obj* myObjs;
 vector<Obj> myObjCitadel;
 vector<Sector*> myCitadel;
 vector<Bomb*> myBombs;
+Cannon* myCannon;
 long delta_t;
 int sectors=6;
 
@@ -434,11 +436,11 @@ void DisegnaTutto()
 	glEnd();
 	glPopMatrix();
 
-
 	//Bombe (TMP)
-
 	for(int i=0; i< myBombs.size(); i++)
 		myBombs.at(i)->drawMe();
+
+	myCannon->drawMe();
 
 	glutSwapBuffers();
 }
@@ -452,8 +454,19 @@ void MuoviMouse (int button, int state, int x, int y){
 }
 
 void processMouseActiveMotion(int x, int y){
-	Cubo.X = (x-640)/80;
-	Cubo.Y = (-y+400)/50;
+
+	//Cubo.X = (x-640)/80;
+	//Cubo.Y = (-y+400)/50;
+
+	register float halfScreen = 640.0f;
+
+	cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
+
+	register float myCos = ((x-halfScreen)/halfScreen);
+	register float angle = acos(myCos)*180.0f/3.14f;
+	cout << "Mouse acos in gradi = " << angle << endl;
+
+	//myCannon->
 }
 
 
@@ -475,8 +488,6 @@ int main(int argc, char **argv)
 	glutInitWindowSize(1280, 800);
 	glutGameModeString("1280x800:16");
 	glutEnterGameMode();
-
-
 
 	glutReshapeFunc(CambiaDim);
 	glutDisplayFunc(DisegnaTutto);
@@ -502,7 +513,7 @@ int main(int argc, char **argv)
 	 */
 
 	//Toglie il cursore
-	glutSetCursor(GLUT_CURSOR_NONE);
+	//glutSetCursor(GLUT_CURSOR_NONE);
 
 	//glutTimerFunc(33,gira,1);
 	glutIdleFunc(Progress);
@@ -589,6 +600,8 @@ int main(int argc, char **argv)
 		xIterator += myWidth;
 		yIterator -= myWidth;
 	}
+
+	myCannon = new Cannon();
 
 
 	/*
