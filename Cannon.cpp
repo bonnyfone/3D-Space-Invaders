@@ -6,8 +6,8 @@
  */
 
 #include "Cannon.h"
-
-Cannon::Cannon() : Obj(0,10,-2, 1,1,2, -60,0,0) {
+//Cannon::Cannon() : Obj(0,10,-2, 1,1,2, -60,0,0) {
+Cannon::Cannon() : Obj(0,10,-2, 1,1,2, 0,0,0) {
 	targeting=0.0f;
 	targetingSystem=true;
 }

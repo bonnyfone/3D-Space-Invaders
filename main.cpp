@@ -321,14 +321,22 @@ void processMouseAction (int button, int state, int x, int y){
 		register float cosZ = -cos((myCannon->getrZ()+90.0f) /180.0f*PI);
 
 		//Velocità di movimento lungo asse z (vZ)
-		register float senZ =  sin((myCannon->getrZ()+90.0f) /180.0f*PI);
+		register float sinZ =  sin((myCannon->getrZ()+90.0f) /180.0f*PI);
 
 		//Fattore di spostamento verticale (vY)
-		register float cosX = -cos((myCannon->getrX()) /180.0f*PI);
-		register float senX =  -sin((myCannon->getrX()) /180.0f*PI);
 
-		cout << "Projectile angle,cos:" <<myCannon->getrZ()+90.0f <<" "<< cosZ << endl;
-		myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(), cosZ+(1-senZ)/2,cosX+(1-senX)/2,senZ));
+		register float sinX = sin((myCannon->getrX()+90.0f) /180.0f*PI);
+		//cout << "Debug: angolo=" <<  myCannon->getrX()+90.0f << "  rad= " << ((myCannon->getrX()+90.0f) /180.0f*PI)<< "  sin=" << sinX << endl;
+		//cout << "Projectile angle,cos:" <<myCannon->getrZ()+90.0f <<" "<< cosZ << endl;
+		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(), cosZ+(1-senZ)/2,cosX+(1-senX)/2,senZ));
+		//cout << "Debug sinZ " << senZ << endl;
+		register float vZ = (sinX>=0) ? sinX : -sinX; //max(sinX,-sinX);
+		cout << "Debug VZ " << vZ << "   asasd " << sinZ-vZ << endl;
+		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, senZ-vZ));
+		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sqrt(pow(1-pow(sinX,2),2) - pow(cosZ,2)) ));
+		myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sinZ));
+
+		/* Volendo, si dovrebbe migliorare le precisione del calcolo della vZ*/
 	}
 
 }
@@ -348,7 +356,7 @@ void processMouseActiveMotion(int x, int y){
 	register float halfScreen = 640.0f;
 	register float myVal = ((x-halfScreen)/halfScreen);
 	register float angle = acos(myVal)*180.0f/PI - 90.0f;
-	angle=angle /100*80;
+	//angle=angle /100*80;
 	cout << "Mouse acos in gradi = " << angle << endl;
 
 	myCannon->setrZ(angle);
@@ -358,11 +366,13 @@ void processMouseActiveMotion(int x, int y){
 	halfScreen = 400.0f;
 	myVal = ((y-halfScreen)/halfScreen);
 	angle = acos(myVal)*180.0f/PI - 180.0f;
-	angle=min(-30.0f,angle /100*70);
+	//angle=min(-30.0f,angle /100*70);
+	//angle=angle /100*80;
+
 	cout << "Mouse acos in gradi = " << angle << endl;
 
 	myCannon->setrX(angle);
-
+	//myCannon->setrX(-90);
 }
 
 
