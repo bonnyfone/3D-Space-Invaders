@@ -22,7 +22,7 @@ Bomb::Bomb(float _X,float _Y,float _Z, Sector* mySector, Building* myBuilding) :
 
 void Bomb::move(long time){
 	//Cinematica della bomba
-	setY(getY()-getvY()*time/50);
+	setY(getY()-getvY()*time/speed);
 };
 
 void Bomb::autodetectBuildings(Building* myBuilding){

@@ -10,6 +10,7 @@ CPP_SRCS += \
 ../DistructableObj.cpp \
 ../MobileObj.cpp \
 ../Obj.cpp \
+../Projectile.cpp \
 ../Sector.cpp \
 ../main.cpp 
 
@@ -20,6 +21,7 @@ OBJS += \
 ./DistructableObj.o \
 ./MobileObj.o \
 ./Obj.o \
+./Projectile.o \
 ./Sector.o \
 ./main.o 
 
@@ -30,6 +32,7 @@ CPP_DEPS += \
 ./DistructableObj.d \
 ./MobileObj.d \
 ./Obj.d \
+./Projectile.d \
 ./Sector.d \
 ./main.d 
 

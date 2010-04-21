@@ -8,7 +8,9 @@ MobileObj::MobileObj(float _X,float _Y,float _Z, float _dimX, float _dimY, float
 	vX = _vX; vY = _vY; vZ = _vZ;
 };
 
+float MobileObj::getvX()const {return vX;};
 float MobileObj::getvY()const {return vY;};
+float MobileObj::getvZ()const {return vZ;};
 
 void MobileObj::move(long time){/*overridare*/};
 

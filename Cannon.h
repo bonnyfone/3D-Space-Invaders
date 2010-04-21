@@ -17,8 +17,6 @@ private:
 	float targeting;
 
 public:
-
-
 	Cannon();
 
 	void drawMe();

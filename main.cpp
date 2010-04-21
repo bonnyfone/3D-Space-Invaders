@@ -18,6 +18,7 @@
 #include "Building.h"
 #include "Bomb.h"
 #include "Cannon.h"
+#include "Projectile.h"
 
 void CambiaDim(int, int);
 void DisegnaTutto();
@@ -27,12 +28,13 @@ using namespace std;
 
 
 /* ################################## GLOBALI ################################## */
-/*Introdotto osservatore*/
 Obj* myObjs;
-//vector<Obj> myObjCitadel;
 vector<Sector*> myCitadel;
 vector<Bomb*> myBombs;
+vector<Projectile*> myAmmo;
 Cannon* myCannon;
+
+const float PI = 3.14159265;
 long delta_t;
 int sectors=6;
 
@@ -48,153 +50,6 @@ int dim_cit = 20;
 float ossX, ossY, ossZ;
 float ossA, ossB;
 float pNear=0.5;
-
-class cubo3d {
-
-public:
-	cubo3d() {X=0; Y=0; Z=-10; rX=rY=rZ=0;}; //costruttore
-
-	//controllo
-	void Muoviti(unsigned char t)
-	{
-		if(t == 's') X += 0.5f;
-		if(t == 'a') X -= 0.5f;
-		if(t == 'w') Y += 0.5f;
-		if(t == 'z') Y -= 0.5f;
-		if(t == 'y') Z += 0.5f;//
-		if(t == 't') Z -= 0.5f;
-
-		if(t == 'c') rZ += 10.0f;
-		if(t == 'x') rZ -= 10.0f;
-		if(t == 'p') rX += 10.0f;
-		if(t == 'o') rX -= 10.0f;
-		if(t == 'l') rY += 10.0f;
-		if(t == 'k') rY -= 10.0f;
-	}
-
-	//vista
-	void Disegnati()
-	{
-		//Da DisegnaTutto...
-		glMatrixMode(GL_MODELVIEW);// -> lavora sulla matrice del modello
-		glPushMatrix(); //salvo matrice (così posso disegnare il cubo disaccoppiato dal mondo
-
-		//glEnable(GL_CULL_FACE);
-		glTranslatef(X,Y,Z);
-		glRotatef(rX, 1, 0, 0);
-		glRotatef(rY, 0, 1, 0);
-		glRotatef(rZ, 0, 0, 1);
-
-		glBegin(GL_QUADS);
-			/*	//faccia posteriore
-				glColor3f(1, 0, 1);
-				glVertex3f(-1,-1,1);
-				glVertex3f(1,-1,1);
-				glVertex3f(1,1,1);
-				glVertex3f(-1,1,1);
-
-				//prima faccia (davanti)
-				glColor3f(1, 1, 0);
-				glVertex3f(1,-1,-1);
-				glVertex3f(-1,-1,-1);
-				glVertex3f(-1,1,-1);
-				glVertex3f(1,1,-1);
-*/
-		int R=1;
-		glColor3f(1, 0, 1);
-		glVertex3f(R, R, R);
-		glVertex3f(-R, R, R);
-		glVertex3f(-R, -R, R);
-		glVertex3f(R, -R, R);
-
-		glColor3f(0, 0, 1);
-		glVertex3f(-R, R, -R);
-		glVertex3f(R, R, -R);
-		glVertex3f(R, -R, -R);
-		glVertex3f(-R, -R, -R);
-
-		glColor3f(1, 1, 0);
-		glVertex3f(R, R, -R);
-		glVertex3f(R, R, R);
-		glVertex3f(R, -R, R);
-		glVertex3f(R, -R, -R);
-
-		glColor3f(0.5f, 0, 1);
-		glVertex3f(-R, R, R);
-		glVertex3f(-R, R, -R);
-		glVertex3f(-R, -R, -R);
-		glVertex3f(-R, -R, R);
-
-		glColor3f(0, 1, 1);
-		glVertex3f(R, R, -R);
-		glVertex3f(-R, R, -R);
-		glVertex3f(-R, R, R);
-		glVertex3f(R, R, R);
-
-		glColor3f(1, 0, 0);
-		glVertex3f(-R, -R, -R);
-		glVertex3f(R, -R, -R);
-		glVertex3f(R, -R, R);
-		glVertex3f(-R, -R, R);
-
-		glEnd();
-
-		//Da disegnaQuadrato/cubo
-		glColor3f(0, 0, 0);
-		glBegin(GL_LINE_LOOP); //"prima faccia" del cubo
-		glVertex3f(-1,-1,1);
-		glVertex3f(1,-1,1);
-		glVertex3f(1,1,1);
-		glVertex3f(-1,1,1);
-		glEnd();
-
-		glBegin(GL_LINE_LOOP); //seconda faccia del cubo
-		glVertex3f(-1,-1,-1);
-		glVertex3f(1,-1,-1);
-		glVertex3f(1,1,-1);
-		glVertex3f(-1,1,-1);
-		glEnd();
-
-		glBegin(GL_LINES);//I 4 segmenti che collegano le facce
-		glVertex3f(-1,-1,-1);
-		glVertex3f(-1,-1,1);
-		glVertex3f(1,-1,-1);
-		glVertex3f(1,-1,1);
-		glVertex3f(1,1,-1);
-		glVertex3f(1,1,1);
-		glVertex3f(-1,1,-1);
-		glVertex3f(-1,1,1);
-		glEnd();
-
-		//mio: Gli assi del cubo
-		glColor3f(1,1,1);
-		glBegin(GL_LINES);
-		glVertex3f(-1.5f,0,0);
-		glVertex3f(1.5f,0,0);
-
-		glVertex3f(0,0,-1.5f);
-		glVertex3f(0,0,1.5f);
-
-		glVertex3f(0,-1.5f,0);
-		glVertex3f(0,1.5f,0);
-		glEnd();
-
-
-		glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
-	}
-
-	//private:
-	//Modello
-	float X;
-	float Y;
-	float Z;
-	float rX,rY,rZ;
-
-};
-
-//Oggetto cubo
-cubo3d Cubo;
-cubo3d Cubo2;
 
 
 //Linko le funzioni..
@@ -222,11 +77,7 @@ void TastoPremuto(unsigned char t, int, int)
 	/*  if(t == '1') pNear *= 1.1f;
     if(t == '2') pNear *= 0.9f;
 	 */
-	//Aggiunti al volo per gestire i due cubi..da fart meglio
-	if(t == '4') Cubo.X -= 0.1f;
-	if(t == '5') Cubo.X += 0.1f;
-	if(t == '7') Cubo2.X -= 0.1f;
-	if(t == '8') Cubo2.X += 0.1f;
+
 
 	if(t == 27) exit(0);
 
@@ -236,7 +87,6 @@ void TastoPremuto(unsigned char t, int, int)
 		exit(0);
 	}
 	 */
-	Cubo.Muoviti(t);
 
 	glutPostRedisplay();		//richiesta di ridisegnare la finestra
 }
@@ -251,8 +101,15 @@ void CambiaDim(int w, int h)
 
 //CALLBACK per l'evoluzione del gioco
 void Progress(){
-	Cubo.rX -= 0.1f;
-	Cubo.Disegnati();
+
+	//Ammo
+	for(register unsigned int i=0;i<myAmmo.size();i++){
+		myAmmo.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
+		if(myAmmo.at(i)->getZ() <= -150){
+			delete myAmmo.at(i);
+			myAmmo.erase(myAmmo.begin()+i);
+		}
+	}
 
 	//Check bombe
 	for(register unsigned int i=0;i<myBombs.size();i++){
@@ -375,7 +232,6 @@ void DisegnaTutto()
 
 
 	glColor3f(1,0,0);
-	Cubo.Disegnati();
 
 	//Disegno settori
 	for(register unsigned int i=0; i< myCitadel.size();i++){
@@ -444,14 +300,36 @@ void DisegnaTutto()
 	for(register unsigned int i=0; i< myBombs.size(); i++)
 		myBombs.at(i)->drawMe();
 
+	//Proiettili (TMP)
+	for(register unsigned int i=0; i< myAmmo.size(); i++)
+		myAmmo.at(i)->drawMe();
+
+
+
 	glutSwapBuffers();
 }
 
 
-void MuoviMouse (int button, int state, int x, int y){
+//CALLBACK gestione azioni del mouse
+void processMouseAction (int button, int state, int x, int y){
 	//	buttons[button] = state;
-	Cubo.X = x;
-	Cubo.Y = y;
+
+	if(button==0 && state ==0){//singolo mouseClickDown
+		cout << "Sparato!!"<<endl;
+
+		//Fattore di spostamento trasversale (vX)
+		register float cosZ = -cos((myCannon->getrZ()+90.0f) /180.0f*PI);
+
+		//Velocità di movimento lungo asse z (vZ)
+		register float senZ =  sin((myCannon->getrZ()+90.0f) /180.0f*PI);
+
+		//Fattore di spostamento verticale (vY)
+		register float cosX = -cos((myCannon->getrX()) /180.0f*PI);
+		register float senX =  -sin((myCannon->getrX()) /180.0f*PI);
+
+		cout << "Projectile angle,cos:" <<myCannon->getrZ()+90.0f <<" "<< cosZ << endl;
+		myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(), cosZ+(1-senZ)/2,cosX+(1-senX)/2,senZ));
+	}
 
 }
 
@@ -464,11 +342,12 @@ void processMouseActiveMotion(int x, int y){
 
 	//Cubo.X = (x-640)/80;
 	//Cubo.Y = (-y+400)/50;
+	//Muove il cannone
 	cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
 
 	register float halfScreen = 640.0f;
 	register float myVal = ((x-halfScreen)/halfScreen);
-	register float angle = acos(myVal)*180.0f/3.14f - 90.0f;
+	register float angle = acos(myVal)*180.0f/PI - 90.0f;
 	angle=angle /100*80;
 	cout << "Mouse acos in gradi = " << angle << endl;
 
@@ -478,7 +357,7 @@ void processMouseActiveMotion(int x, int y){
 
 	halfScreen = 400.0f;
 	myVal = ((y-halfScreen)/halfScreen);
-	angle = acos(myVal)*180.0f/3.14f - 180.0f;
+	angle = acos(myVal)*180.0f/PI - 180.0f;
 	angle=min(-30.0f,angle /100*70);
 	cout << "Mouse acos in gradi = " << angle << endl;
 
@@ -512,7 +391,7 @@ int main(int argc, char **argv)
 
 	//Cattura movimenti mouse
 
-	glutMouseFunc(MuoviMouse);
+	glutMouseFunc(processMouseAction);
 	glutMotionFunc(processMouseActiveMotion);
 	glutPassiveMotionFunc(processMouseActiveMotion);
 

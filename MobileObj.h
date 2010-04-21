@@ -18,7 +18,10 @@ public:
 
 	virtual void move(long);
 
+	float getvX() const;
 	float getvY() const;
+	float getvZ() const;
+
 
 	virtual ~MobileObj();
 };

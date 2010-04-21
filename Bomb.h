@@ -16,6 +16,7 @@
 class Bomb: public MobileObj, public DistructableObj {
 
 private:
+	static const int speed = 50;
 	Sector* currentSector;
 	vector<Building*> possibileTarget;
 
@@ -30,7 +31,7 @@ public:
 
 	void setSector(Sector*);
 
-	void autodetectBuildings(Building*);
+	virtual void autodetectBuildings(Building*);
 
 	bool checkCollision();
 
