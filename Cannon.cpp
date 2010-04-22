@@ -35,7 +35,7 @@ void Cannon::drawMe(){
 	float s,c;
 	float step;
 
-	step=6.28f / 64.0f;
+	step=6.3f / 64.0f;
 
 	//Mirino
 	if(targetingSystem){
@@ -50,17 +50,28 @@ void Cannon::drawMe(){
 
 
 	//Cannone
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 1);
 	glColor3f(0.2f,0.2f,0.2f);
 	glBegin(GL_QUAD_STRIP);
-	for(alfa = step; alfa < 6.29f; alfa += step) //messo di proposito 6.29f per esser sicuri di fare un giro completo (circa 2pigreco=360°)
+	for(alfa = 0; alfa < 6.3f; alfa += step) //messo di proposito 6.29f per esser sicuri di fare un giro completo (circa 2pigreco=360°)
 	{
 		s = sin(alfa - step) /2;
 		c = cos(alfa - step) /2;
 		//glNormal3f(c,0,s);
+
+
+		//glTexCoord2f(0, 1);
 		glVertex3f(c, -2, s);
+		glTexCoord2f(0, alfa/6.3f);
+
+
+		//glTexCoord2f(1, 1);
 		glVertex3f(c,  2, s);
+		glTexCoord2f(1, alfa/6.3f);
 	}
 	glEnd();
+	glDisable(GL_TEXTURE_2D);
 
 	glPopMatrix();
 }

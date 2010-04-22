@@ -110,47 +110,11 @@ void Bomb::drawMe(){
 	float R = getDimX();
 	//glColor3f((rand()%100) / 100.0f, (rand()%100) / 100.0f, (rand()%100) / 100.0f);
 	glColor3f(0.3f,0.3f,0.3f);
+	//Cannone
+	//glEnable(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, 1);
 	glutSolidSphere(getDimX(),20,10);
-	/*glBegin(GL_QUADS);
-
-		glColor3f(1, 0, 1);
-		glVertex3f(R, getL(), R);
-		glVertex3f(-R, getL(), R);
-		glVertex3f(-R, -getL(), R);
-		glVertex3f(R, -getL(), R);
-
-		glColor3f(0, 0, 1);
-		glVertex3f(-R, getL(), -R);
-		glVertex3f(R, getL(), -R);
-		glVertex3f(R, -getL(), -R);
-		glVertex3f(-R, -getL(), -R);
-
-		glColor3f(1, 1, 0);
-		glVertex3f(R, getL(), -R);
-		glVertex3f(R, getL(), R);
-		glVertex3f(R, -getL(), R);
-		glVertex3f(R, -getL(), -R);
-
-		glColor3f(0.5f, 0, 1);
-		glVertex3f(-R, getL(), R);
-		glVertex3f(-R, getL(), -R);
-		glVertex3f(-R, -getL(), -R);
-		glVertex3f(-R, -getL(), R);
-
-		glColor3f(0, 1, 1);
-		glVertex3f(R, getL(), -R);
-		glVertex3f(-R, getL(), -R);
-		glVertex3f(-R, getL(), R);
-		glVertex3f(R, getL(), R);
-
-		glColor3f(1, 0, 0);
-		glVertex3f(-R, -getL(), -R);
-		glVertex3f(R, -getL(), -R);
-		glVertex3f(R, -getL(), R);
-		glVertex3f(-R, -getL(), R);
-
-	glEnd();*/
-
+	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 };

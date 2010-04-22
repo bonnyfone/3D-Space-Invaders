@@ -16,7 +16,7 @@
 class Bomb: public MobileObj, public DistructableObj {
 
 private:
-	static const int speed = 50;
+	static const int speed = 300;
 	Sector* currentSector;
 	vector<Building*> possibileTarget;
 

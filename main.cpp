@@ -34,6 +34,7 @@ vector<Bomb*> myBombs;
 vector<Projectile*> myAmmo;
 Cannon* myCannon;
 
+
 const float PI = 3.14159265;
 long delta_t;
 int sectors=6;
@@ -43,13 +44,16 @@ int sectors=6;
 GLfloat PosLite[4]={2,2,2,1};
 int dim_cit = 20;
 
-/*############################################################################*/
-
+/*  TEXTURE  */
+GLubyte Texture1[256 * 256 * 3];
+GLubyte Texture2[256 * 256 * 3];
 
 //Osservatore...
 float ossX, ossY, ossZ;
 float ossA, ossB;
 float pNear=0.5;
+
+/*############################################################################*/
 
 
 //Linko le funzioni..
@@ -326,16 +330,21 @@ void processMouseAction (int button, int state, int x, int y){
 		//Fattore di spostamento verticale (vY)
 
 		register float sinX = sin((myCannon->getrX()+90.0f) /180.0f*PI);
+		register float cosX = cos((myCannon->getrX()) /180.0f*PI);
+
 		//cout << "Debug: angolo=" <<  myCannon->getrX()+90.0f << "  rad= " << ((myCannon->getrX()+90.0f) /180.0f*PI)<< "  sin=" << sinX << endl;
 		//cout << "Projectile angle,cos:" <<myCannon->getrZ()+90.0f <<" "<< cosZ << endl;
 		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(), cosZ+(1-senZ)/2,cosX+(1-senX)/2,senZ));
 		//cout << "Debug sinZ " << senZ << endl;
 		register float vZ = (sinX>=0) ? sinX : -sinX; //max(sinX,-sinX);
-		cout << "Debug VZ " << vZ << "   asasd " << sinZ-vZ << endl;
+		//cout << "Debug VZ " << vZ << "   asasd " << sinZ-vZ << endl;
+		//cout << "Debug cosX " << vZ << "   cosX " << cosX << endl;
+
 		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, senZ-vZ));
 		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sqrt(pow(1-pow(sinX,2),2) - pow(cosZ,2)) ));
-		myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sinZ));
-
+		//cout << "Debug zzz " << sqrt( pow(sinZ,2)-pow(sinX,2) ) << endl;
+		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sqrt( pow(sinZ,2)-pow(sinX*(1-cosZ),2) ) ));
+		myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sinZ ));
 		/* Volendo, si dovrebbe migliorare le precisione del calcolo della vZ*/
 	}
 
@@ -372,6 +381,7 @@ void processMouseActiveMotion(int x, int y){
 	cout << "Mouse acos in gradi = " << angle << endl;
 
 	myCannon->setrX(angle);
+
 	//myCannon->setrX(-90);
 }
 
@@ -510,17 +520,30 @@ int main(int argc, char **argv)
 
 	myCannon = new Cannon();
 
+	//Carica le texture
+	{
+			FILE *fHan = fopen("img/metal4.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture1, 256 * 256, 3, fHan);
+			fclose(fHan);
 
-	/*
-	//Bombe (TMP da modificare, devono crearsi dinamicamente mentre si gioca)
-	for(int i = 0;i<10;i++){
-		int meno=1;
-		if(rand()%2 ==0)meno=-1;
+			fHan = fopen("img/sector.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture2, 256 * 256, 3, fHan);
+			fclose(fHan);
+	}
 
-		Bomb* myBomb = new Bomb(meno*rand()%15,20,-rand()%50);
-		myBombs.push_back(myBomb);
-		cout << " bomba " << myBomb->getX() << " " << myBomb->getY() << " " << myBomb->getZ() << endl;
-	}*/
+	glBindTexture(GL_TEXTURE_2D, 1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Texture1);
+
+	glBindTexture(GL_TEXTURE_2D, 2);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Texture2);
 
 	//Posizione iniziale dell'osservatore
 	ossY=14;

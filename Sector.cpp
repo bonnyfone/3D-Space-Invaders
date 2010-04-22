@@ -32,24 +32,35 @@
 
 	    glTranslatef(getX(),getY(),getZ());
 
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 2);
 		glBegin(GL_QUADS);
 
 			glColor3f(r, g, b);
 
 			if(cull==0){//antiorario
+				glTexCoord2f(0, 0);
 				glVertex3f(0, 0.04, 0);
+				glTexCoord2f(0, 1);
 				glVertex3f(getDimX(), 0.04, 0);
+				glTexCoord2f(1, 0);
 				glVertex3f(getDimX(), 0.04, -getDimZ());
+				glTexCoord2f(1, 1);
 				glVertex3f(0, 0.04, -getDimZ());
 			}
 			else{//orario
+				glTexCoord2f(0, 0);
 				glVertex3f(0, 0.04, 0);
+				glTexCoord2f(0, 1);
 				glVertex3f(0, 0.04,getDimZ());
+				glTexCoord2f(1, 0);
 				glVertex3f(getDimX(), 0.04, getDimZ());
+				glTexCoord2f(1, 1);
 				glVertex3f(getDimX(), 0.04, 0);
 			}
 
 		glEnd();
+		glDisable(GL_TEXTURE_2D);
 
 		glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
