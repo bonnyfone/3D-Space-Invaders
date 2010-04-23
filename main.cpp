@@ -248,6 +248,23 @@ void DisegnaTutto()
 			glVertex3f(-120+i*80,40,-100);
 	 }
 	glEnd();
+
+	//Luna
+	glPushMatrix();
+	GLfloat ambiente[4] = { 1, 1, 1, 1 };
+	GLfloat direttiva[4] = { 1, 1, 1, 1 };
+	GLfloat brillante[4] = { 1, 1, 1, 1 };
+
+	glMateriali(GL_FRONT, GL_SHININESS, 32);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
+
+	glTranslatef(55,20,-100);
+
+	glutSolidSphere(10,20,20);
+	glPopMatrix();
+
 /*
 		glTexCoord2f(0,1);
 		glVertex3f(-90,0,-90);
@@ -534,7 +551,7 @@ int main(int argc, char **argv)
 	GLfloat sLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
 
 	//Fonte di luce in alto a dx (simula la luna?)
-	GLfloat PosLite[4] = { 1, 1, 0, 0 };
+	GLfloat PosLite[4] = { 1.0f, 1.0f, -0.5f, 0 };
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
