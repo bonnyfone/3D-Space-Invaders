@@ -60,18 +60,18 @@ void Cannon::drawMe(){
 		c = cos(alfa - step) /2;
 		//glNormal3f(c,0,s);
 
-
-		//glTexCoord2f(0, 1);
-		glVertex3f(c, -2, s);
 		glTexCoord2f(0, alfa/6.3f);
+		glVertex3f(c, -2, s);
 
-
-		//glTexCoord2f(1, 1);
-		glVertex3f(c,  2, s);
 		glTexCoord2f(1, alfa/6.3f);
+		glVertex3f(c,  2, s);
 	}
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
+
+	glTranslatef(0,2,0);
+	glRotatef(90, 1, 0, 0);
+	glutSolidTorus(0.2f,0.5f,20,20);
 
 	glPopMatrix();
 }

@@ -631,7 +631,7 @@ int main(int argc, char **argv)
 			fclose(fHan);
 
 			GLubyte Texture3[256 * 256 * 3];
-			fHan = fopen("img/rock3.raw", "rb");
+			fHan = fopen("img/rock.raw", "rb");
 			if(fHan == NULL) return(0);
 			fread(Texture3, 256 * 256, 3, fHan);
 			fclose(fHan);
@@ -649,11 +649,19 @@ int main(int argc, char **argv)
 			fread(Texture5, 1024 * 512, 3, fHan);
 			fclose(fHan);
 
+			GLubyte Texture6[256 * 256 * 3];
+			fHan = fopen("img/wall.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture6, 256 * 256, 3, fHan);
+			fclose(fHan);
+
 			Textures.push_back(Texture1);
 			Textures.push_back(Texture2);
 			Textures.push_back(Texture3);
 			Textures.push_back(Texture4);
 			Textures.push_back(Texture5);
+			Textures.push_back(Texture6);
+
 
 	}
 

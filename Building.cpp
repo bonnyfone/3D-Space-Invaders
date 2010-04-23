@@ -31,45 +31,58 @@ glRotatef(getrX(), 1, 0, 0);
 glRotatef(getrY(), 0, 1, 0);
 glRotatef(getrZ(), 0, 0, 1);
 
+glEnable(GL_TEXTURE_2D);
+glBindTexture(GL_TEXTURE_2D, 6);
+
 glBegin(GL_QUADS);
 
-	glColor3f(1, 0, 1);
+	//glColor3f(1, 0, 1);
+
+	glTexCoord2f(1, 0);
 	glVertex3f(R, getL(), R);
+	glTexCoord2f(0, 0);
 	glVertex3f(-R, getL(), R);
+	glTexCoord2f(0,getL()/getStartingL());
 	glVertex3f(-R, -getL(), R);
+	glTexCoord2f(1, getL()/getStartingL());
 	glVertex3f(R, -getL(), R);
 
-	glColor3f(0, 0, 1);
+	//glColor3f(0, 0, 1);
+	glTexCoord2f(1, 0);
 	glVertex3f(-R, getL(), -R);
+	glTexCoord2f(0, 0);
 	glVertex3f(R, getL(), -R);
+	glTexCoord2f(0,getL()/getStartingL());
 	glVertex3f(R, -getL(), -R);
+	glTexCoord2f(1, getL()/getStartingL());
 	glVertex3f(-R, -getL(), -R);
 
-	glColor3f(1, 1, 0);
+	//glColor3f(1, 1, 0);
 	glVertex3f(R, getL(), -R);
 	glVertex3f(R, getL(), R);
 	glVertex3f(R, -getL(), R);
 	glVertex3f(R, -getL(), -R);
 
-	glColor3f(0.5f, 0, 1);
+	//glColor3f(0.5f, 0, 1);
 	glVertex3f(-R, getL(), R);
 	glVertex3f(-R, getL(), -R);
 	glVertex3f(-R, -getL(), -R);
 	glVertex3f(-R, -getL(), R);
 
-	glColor3f(0, 1, 1);
+	//glColor3f(0, 1, 1);
 	glVertex3f(R, getL(), -R);
 	glVertex3f(-R, getL(), -R);
 	glVertex3f(-R, getL(), R);
 	glVertex3f(R, getL(), R);
 
-	glColor3f(1, 0, 0);
+	//glColor3f(1, 0, 0);
 	glVertex3f(-R, -getL(), -R);
 	glVertex3f(R, -getL(), -R);
 	glVertex3f(R, -getL(), R);
 	glVertex3f(-R, -getL(), R);
 
 glEnd();
+glDisable(GL_TEXTURE_2D);
 
 //Bordi neri
 /*

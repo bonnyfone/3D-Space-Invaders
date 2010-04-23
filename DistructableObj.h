@@ -11,6 +11,8 @@ private:
 	//la "vita" dell'oggetto. L'oggetto è completamente distrutto quando L <= 0
     float L;
 
+    float startingL;
+
 public:
     //Costruttore a 3 parametri (posizione)
     DistructableObj(float, float, float);
@@ -25,6 +27,8 @@ public:
 
     //ritorna quanta vita ha l'oggetto
     float getL() const;
+    float getStartingL() const;
+
     void setL(float);
 
     virtual ~DistructableObj();

@@ -7,7 +7,7 @@
 
 #include "Projectile.h"
 
-Projectile::Projectile(float _X,float _Y,float _Z, float _vX,float _vY,float _vZ) : Obj(_X,_Y,_Z, 0.4f,0.4f,0.4f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, _vX,_vY,_vZ) {
+Projectile::Projectile(float _X,float _Y,float _Z, float _vX,float _vY,float _vZ) : Obj(_X,_Y,_Z, 0.3f,0.3f,0.3f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, _vX,_vY,_vZ) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -27,7 +27,6 @@ void Projectile::drawMe(){
 	glRotatef(getrY(), 0, 1, 0);
 	glRotatef(getrZ(), 0, 0, 1);
 
-	float R = getDimX();
 	//glColor3f((rand()%100) / 100.0f, (rand()%100) / 100.0f, (rand()%100) / 100.0f);
 	glColor3f(0.3f,0.3f,0.9f);
 	glutSolidSphere(getDimX(),20,10);
