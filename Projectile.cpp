@@ -29,7 +29,7 @@ void Projectile::drawMe(){
 
 	float R = getDimX();
 	//glColor3f((rand()%100) / 100.0f, (rand()%100) / 100.0f, (rand()%100) / 100.0f);
-	glColor3f(0.6f,0.3f,0.3f);
+	glColor3f(0.3f,0.3f,0.9f);
 	glutSolidSphere(getDimX(),20,10);
 
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto

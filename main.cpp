@@ -45,8 +45,7 @@ GLfloat PosLite[4]={2,2,2,1};
 int dim_cit = 20;
 
 /*  TEXTURE  */
-GLubyte Texture1[256 * 256 * 3];
-GLubyte Texture2[256 * 256 * 3];
+vector<GLubyte*> Textures;
 
 //Osservatore...
 float ossX, ossY, ossZ;
@@ -202,11 +201,123 @@ void DisegnaTutto()
 	myCannon->drawMe();
 
 	//Pavimento..
-	float a;
-	glColor3f(0.0f, 0.8f, 0.0f);
-	int ypos = 0;
+	float a,z,delta;
+	delta=7.0f;
 
+	int ypos = 0;
+	int c;
+
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 3);
+	glColor3f(0.2f,0.2f,0.2f);
+
+	//Terreno
+	for(a=-80; a<80; a+=delta)
+	{
+		glBegin(GL_QUAD_STRIP);
+		for(c=0, z=5; z> -100; z-=delta,c++){
+
+				if(c%2 == 0)glTexCoord2f(0,0);
+				else glTexCoord2f(0,1);
+
+				glVertex3f(a,0,z);
+
+				if(c%2 == 0)glTexCoord2f(1,0);
+				else glTexCoord2f(1,1);
+
+				glVertex3f(a+delta,0,z);
+		}
+		glEnd();
+	}
+
+	//Cielo
+	glBindTexture(GL_TEXTURE_2D, 5);
+	glBegin(GL_QUADS);
+	 for(int i=0;i<3;i++){
+			glTexCoord2f(0,1);
+			glVertex3f(-120+i*80,0,-90);
+
+			glTexCoord2f(1,1);
+			glVertex3f(-120+(i+1)*80,0,-90);
+
+			glTexCoord2f(1,0);
+			glVertex3f(-120+(i+1)*80,40,-90);
+
+			glTexCoord2f(0,0);
+			glVertex3f(-120+i*80,40,-90);
+	 }
+	glEnd();
+/*
+		glTexCoord2f(0,1);
+		glVertex3f(-90,0,-90);
+
+		glTexCoord2f(1,1);
+		glVertex3f(-30,0,-90);
+
+		glTexCoord2f(1,0);
+		glVertex3f(-30,30,-90);
+
+		glTexCoord2f(0,0);
+		glVertex3f(-90,30,-90);
+
+
+		glTexCoord2f(0,1);
+		glVertex3f(-30,0,-90);
+
+		glTexCoord2f(1,1);
+		glVertex3f(30,0,-90);
+
+		glTexCoord2f(1,0);
+		glVertex3f(30,30,-90);
+
+		glTexCoord2f(0,0);
+		glVertex3f(-30,30,-90);
+
+
+
+		glTexCoord2f(0,1);
+		glVertex3f(30,0,-90);
+
+		glTexCoord2f(1,1);
+		glVertex3f(90,0,-90);
+
+		glTexCoord2f(1,0);
+		glVertex3f(90,30,-90);
+
+		glTexCoord2f(0,0);
+		glVertex3f(30,30,-90);
+
+	glEnd();
+	*/
+	/*
+	glBindTexture(GL_TEXTURE_2D, 5);
+	for(a=-80; a<80; a+=delta)
+	{
+		glBegin(GL_QUAD_STRIP);
+		for(c=0, z=0; z< 30; z+=delta,c++){
+
+				if(c%2 == 0)glTexCoord2f(0,0);
+				else glTexCoord2f(0,1);
+
+				glVertex3f(a,z,-90);
+
+				if(c%2 == 0)glTexCoord2f(1,0);
+				else glTexCoord2f(1,1);
+
+				glVertex3f(a+delta,z,-90);
+		}
+		glEnd();
+	}
+	*/
+
+
+	glDisable(GL_TEXTURE_2D);
+
+/*
+	glColor3f(0.0f, 0.8f, 0.0f);
 	glBegin(GL_LINES);
+
 		for(a=-100; a<100; a+= 0.5f)
 		{
 			glVertex3f(a,ypos,-100);
@@ -218,22 +329,8 @@ void DisegnaTutto()
 			glVertex3f(100,ypos,a);
 		}
 
-		//limiti della cittadella
-		/*
-		glColor3f(0.6f, 0.8f, 0.5f);
-		for(a=-16; a<16; a+= 0.2f)
-		{
-			glVertex3f(a,ypos,-60);
-			glVertex3f(a,ypos,-20);
-		}
-		for(a=-20; a<-60; a-= 0.2f)
-		{
-			glVertex3f(-15,ypos,a);
-			glVertex3f(15,ypos,a);
-		}
-		*/
 	glEnd();
-
+*/
 
 	glColor3f(1,0,0);
 
@@ -382,7 +479,6 @@ void processMouseActiveMotion(int x, int y){
 
 	myCannon->setrX(angle);
 
-	//myCannon->setrX(-90);
 }
 
 
@@ -445,7 +541,6 @@ int main(int argc, char **argv)
 	 * 4  5  6
 	 *
 	 */
-	int maxX = 30;
 
 	//coord x da cui partire a generare i settori
 	int startX = -15;
@@ -522,34 +617,61 @@ int main(int argc, char **argv)
 
 	//Carica le texture
 	{
+			int randFloor = rand()%3;
+			GLubyte Texture1[256 * 256 * 3];
 			FILE *fHan = fopen("img/metal4.raw", "rb");
 			if(fHan == NULL) return(0);
 			fread(Texture1, 256 * 256, 3, fHan);
 			fclose(fHan);
 
-			fHan = fopen("img/sector.raw", "rb");
+			GLubyte Texture2[256 * 256 * 3];
+			fHan = fopen("img/sector2.raw", "rb");
 			if(fHan == NULL) return(0);
 			fread(Texture2, 256 * 256, 3, fHan);
 			fclose(fHan);
+
+			GLubyte Texture3[256 * 256 * 3];
+			fHan = fopen("img/rock3.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture3, 256 * 256, 3, fHan);
+			fclose(fHan);
+
+			GLubyte Texture4[256 * 256 * 3];
+			fHan = fopen("img/sky1.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture4, 256 * 256, 3, fHan);
+			fclose(fHan);
+
+
+			GLubyte Texture5[1024 * 512 * 3];
+			fHan = fopen("img/univ3.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture5, 1024 * 512, 3, fHan);
+			fclose(fHan);
+
+			Textures.push_back(Texture1);
+			Textures.push_back(Texture2);
+			Textures.push_back(Texture3);
+			Textures.push_back(Texture4);
+			Textures.push_back(Texture5);
+
 	}
 
-	glBindTexture(GL_TEXTURE_2D, 1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Texture1);
+	for(unsigned int i=0; i<Textures.size(); i++){
+		glBindTexture(GL_TEXTURE_2D, i+1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,GL_REPLACE); //GL_MODULATE se vogliamo le luci
 
-	glBindTexture(GL_TEXTURE_2D, 2);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Texture2);
+		if(i==4) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, Textures.at(i));
+		else glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Textures.at(i));
+	}
 
 	//Posizione iniziale dell'osservatore
 	ossY=14;
-	ossZ=0;
+	ossZ=1;
 	ossX=0;
-	ossB=-24;
+	ossB=-17;
 
 	delta_t= glutGet(GLUT_ELAPSED_TIME);
 	glutMainLoop();
