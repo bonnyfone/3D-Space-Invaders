@@ -37,45 +37,58 @@ glBindTexture(GL_TEXTURE_2D, 6);
 glBegin(GL_QUADS);
 
 	//glColor3f(1, 0, 1);
-
-	glTexCoord2f(1, 0);
+	//faccia frontale
+	glTexCoord2f(1, 1-getL()/getStartingL());
 	glVertex3f(R, getL(), R);
-	glTexCoord2f(0, 0);
+	glTexCoord2f(0, 1- getL()/getStartingL());
 	glVertex3f(-R, getL(), R);
-	glTexCoord2f(0,getL()/getStartingL());
+	glTexCoord2f(0, 1);
 	glVertex3f(-R, -getL(), R);
-	glTexCoord2f(1, getL()/getStartingL());
+	glTexCoord2f(1,1);
 	glVertex3f(R, -getL(), R);
 
 	//glColor3f(0, 0, 1);
-	glTexCoord2f(1, 0);
+	//faccia posteriore
+	glTexCoord2f(0, 1-getL()/getStartingL());
 	glVertex3f(-R, getL(), -R);
-	glTexCoord2f(0, 0);
+	glTexCoord2f(1, 1-getL()/getStartingL());
 	glVertex3f(R, getL(), -R);
-	glTexCoord2f(0,getL()/getStartingL());
+	glTexCoord2f(1,1);
 	glVertex3f(R, -getL(), -R);
-	glTexCoord2f(1, getL()/getStartingL());
+	glTexCoord2f(0, 1);
 	glVertex3f(-R, -getL(), -R);
 
 	//glColor3f(1, 1, 0);
+	//Faccia laterale destra
+	glTexCoord2f(1, 1-getL()/getStartingL());
 	glVertex3f(R, getL(), -R);
+	glTexCoord2f(0, 1- getL()/getStartingL());
 	glVertex3f(R, getL(), R);
+	glTexCoord2f(0, 1);
 	glVertex3f(R, -getL(), R);
+	glTexCoord2f(1,1);
 	glVertex3f(R, -getL(), -R);
 
 	//glColor3f(0.5f, 0, 1);
+	//Faccia laterale sx
+	glTexCoord2f(0, 1-getL()/getStartingL());
 	glVertex3f(-R, getL(), R);
+	glTexCoord2f(1, 1-getL()/getStartingL());
 	glVertex3f(-R, getL(), -R);
+	glTexCoord2f(1,1);
 	glVertex3f(-R, -getL(), -R);
+	glTexCoord2f(0, 1);
 	glVertex3f(-R, -getL(), R);
 
 	//glColor3f(0, 1, 1);
+	//Up
 	glVertex3f(R, getL(), -R);
 	glVertex3f(-R, getL(), -R);
 	glVertex3f(-R, getL(), R);
 	glVertex3f(R, getL(), R);
 
 	//glColor3f(1, 0, 0);
+	//Bottom
 	glVertex3f(-R, -getL(), -R);
 	glVertex3f(R, -getL(), -R);
 	glVertex3f(R, -getL(), R);
