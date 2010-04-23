@@ -216,7 +216,7 @@ void DisegnaTutto()
 	for(a=-80; a<80; a+=delta)
 	{
 		glBegin(GL_QUAD_STRIP);
-		for(c=0, z=5; z> -100; z-=delta,c++){
+		for(c=0, z=5; z> -110; z-=delta,c++){
 
 				if(c%2 == 0)glTexCoord2f(0,0);
 				else glTexCoord2f(0,1);
@@ -236,16 +236,16 @@ void DisegnaTutto()
 	glBegin(GL_QUADS);
 	 for(int i=0;i<3;i++){
 			glTexCoord2f(0,1);
-			glVertex3f(-120+i*80,0,-90);
+			glVertex3f(-120+i*80,0,-100);
 
 			glTexCoord2f(1,1);
-			glVertex3f(-120+(i+1)*80,0,-90);
+			glVertex3f(-120+(i+1)*80,0,-100);
 
 			glTexCoord2f(1,0);
-			glVertex3f(-120+(i+1)*80,40,-90);
+			glVertex3f(-120+(i+1)*80,40,-100);
 
 			glTexCoord2f(0,0);
-			glVertex3f(-120+i*80,40,-90);
+			glVertex3f(-120+i*80,40,-100);
 	 }
 	glEnd();
 /*
@@ -512,18 +512,40 @@ int main(int argc, char **argv)
 	glutPassiveMotionFunc(processMouseActiveMotion);
 
 
+	/* Zbuffer ed smartdrawing */
 	glEnable(GL_DEPTH_TEST); //abilita zbuffer
 	glEnable(GL_CULL_FACE);
 
-	//Illuminazione
+	/* ILLUMINAZIONE */
 	/*
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	GLfloat black[4]= {0,0,0,1};
 
+	GLfloat black[4]= {0,0,0,1};
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
 	 */
+
+	glEnable(GL_LIGHTING);
+
+	GLfloat black[4] = { 0.0f, 0.0f, 0.0f, 1 };
+	GLfloat aLite[4] = { 0.3f, 0.3f, 0.3f, 1 };
+	GLfloat dLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
+	GLfloat sLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
+
+	//Fonte di luce in alto a dx (simula la luna?)
+	GLfloat PosLite[4] = { 1, 1, 0, 0 };
+
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
+	glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
+
+	glEnable(GL_LIGHT0);
 
 	//Toglie il cursore
 	glutSetCursor(GLUT_CURSOR_NONE);
@@ -669,7 +691,7 @@ int main(int argc, char **argv)
 		glBindTexture(GL_TEXTURE_2D, i+1);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,GL_REPLACE); //GL_MODULATE se vogliamo le luci
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,GL_MODULATE); //GL_REPLACE//GL_MODULATE se vogliamo le luci
 
 		if(i==4) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, Textures.at(i));
 		else glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Textures.at(i));
