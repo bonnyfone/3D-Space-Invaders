@@ -63,7 +63,7 @@ void TastoPremuto(unsigned char t, int, int)
 {
 
 	//Leggo eventuali CTRL,ALT..
-	int mod = glutGetModifiers();
+
 
 	if(t == 'm') ossZ -= 0.1f;
 	if(t == 'n') ossZ += 0.1f;
@@ -122,6 +122,7 @@ void Progress(){
 	register float distance;
 	for(register unsigned int i=0;i<myAmmo.size();i++){
 		myAmmo.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
+		register bool die=false;
 		for(register unsigned int j=0;j<myBombs.size();j++){
 			distance = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
 			distance = sqrt(distance);
@@ -133,12 +134,14 @@ void Progress(){
 				myAmmo.erase(myAmmo.begin()+i);
 				j = myBombs.size();
 				i--;
+				die=true;
 			}
 		}
 
-		if(myAmmo.at(i)->getZ() <= -150){
+		if(!die && myAmmo.at(i)->getZ() <= -110){
 			delete myAmmo.at(i);
 			myAmmo.erase(myAmmo.begin()+i);
+			i--;
 		}
 	}
 
