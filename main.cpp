@@ -41,7 +41,7 @@ int sectors=6;
 
 
 //Array globale per le luce
-GLfloat PosLite[4]={2,2,2,1};
+//GLfloat PosLite[4]={2,2,2,1};
 int dim_cit = 20;
 
 /*  TEXTURE  */
@@ -178,39 +178,56 @@ void DisegnaTutto()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	//Illuminazione
-	/*
-		GLfloat aLite[4] = {0.2, 0.2, 0.2, 1};
-		GLfloat dLite[4] = {0.8, 0.8, 0.8, 1};
-		GLfloat sLite[4] = {0.8, 0.8, 0.8, 1};
 
-		glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
-		glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
-
-	    glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
-	 */
 	//Osservatore
 	glRotatef(-ossB, 1, 0, 0); //imp per prima..
 	glRotatef(-ossA, 0, 1, 0); //imp
 	glTranslatef(-ossX,-ossY,-ossZ);
 	//glPushMatrix();//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< SALVO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+	//Luce
+	GLfloat aLite[4] = { 0.3f, 0.3f, 0.3f, 1 };
+	GLfloat dLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
+	GLfloat sLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
+
+	//Fonte di luce in alto a dx (simula la luna?)
+	GLfloat PosLite[4] = { 15.0f, 10.0f, -15.0f, 1 };
+	/*glPushMatrix();
+	glTranslatef(15.0f,10.0f,-15.0f);
+	glutSolidSphere(2,20,20);
+	glPopMatrix();*/
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
+	glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
+
+	//Luna
+		glPushMatrix();
+		GLfloat ambiente[4] = { 0.7f, 0.7f, 0.7f, 1 };
+		GLfloat direttiva[4] = { 1, 1, 1, 1 };
+		GLfloat brillante[4] = { 1, 1, 1, 1 };
+
+		glMateriali(GL_FRONT, GL_SHININESS, 32);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
+
+		glTranslatef(45,20,-80);
+
+		glutSolidSphere(5,40,40);
+		glPopMatrix();
 
 	//cannone
 	myCannon->drawMe();
 
 	//Pavimento..
-	float a,z,delta;
+	register float a,z,delta;
 	delta=7.0f;
-
-	int ypos = 0;
-	int c;
-
+	register int c;
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 3);
-	glColor3f(0.2f,0.2f,0.2f);
 
 	//Terreno
 	for(a=-80; a<80; a+=delta)
@@ -248,88 +265,10 @@ void DisegnaTutto()
 			glVertex3f(-120+i*80,40,-100);
 	 }
 	glEnd();
-
-	//Luna
-	glPushMatrix();
-	GLfloat ambiente[4] = { 1, 1, 1, 1 };
-	GLfloat direttiva[4] = { 1, 1, 1, 1 };
-	GLfloat brillante[4] = { 1, 1, 1, 1 };
-
-	glMateriali(GL_FRONT, GL_SHININESS, 32);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
-
-	glTranslatef(55,20,-100);
-
-	glutSolidSphere(10,20,20);
-	glPopMatrix();
-
-/*
-		glTexCoord2f(0,1);
-		glVertex3f(-90,0,-90);
-
-		glTexCoord2f(1,1);
-		glVertex3f(-30,0,-90);
-
-		glTexCoord2f(1,0);
-		glVertex3f(-30,30,-90);
-
-		glTexCoord2f(0,0);
-		glVertex3f(-90,30,-90);
-
-
-		glTexCoord2f(0,1);
-		glVertex3f(-30,0,-90);
-
-		glTexCoord2f(1,1);
-		glVertex3f(30,0,-90);
-
-		glTexCoord2f(1,0);
-		glVertex3f(30,30,-90);
-
-		glTexCoord2f(0,0);
-		glVertex3f(-30,30,-90);
-
-
-
-		glTexCoord2f(0,1);
-		glVertex3f(30,0,-90);
-
-		glTexCoord2f(1,1);
-		glVertex3f(90,0,-90);
-
-		glTexCoord2f(1,0);
-		glVertex3f(90,30,-90);
-
-		glTexCoord2f(0,0);
-		glVertex3f(30,30,-90);
-
-	glEnd();
-	*/
-	/*
-	glBindTexture(GL_TEXTURE_2D, 5);
-	for(a=-80; a<80; a+=delta)
-	{
-		glBegin(GL_QUAD_STRIP);
-		for(c=0, z=0; z< 30; z+=delta,c++){
-
-				if(c%2 == 0)glTexCoord2f(0,0);
-				else glTexCoord2f(0,1);
-
-				glVertex3f(a,z,-90);
-
-				if(c%2 == 0)glTexCoord2f(1,0);
-				else glTexCoord2f(1,1);
-
-				glVertex3f(a+delta,z,-90);
-		}
-		glEnd();
-	}
-	*/
-
-
 	glDisable(GL_TEXTURE_2D);
+
+
+
 
 /*
 	glColor3f(0.0f, 0.8f, 0.0f);
@@ -533,36 +472,14 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST); //abilita zbuffer
 	glEnable(GL_CULL_FACE);
 
-	/* ILLUMINAZIONE */
-	/*
-	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-
-	GLfloat black[4]= {0,0,0,1};
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
-	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
-	 */
-
 	glEnable(GL_LIGHTING);
 
 	GLfloat black[4] = { 0.0f, 0.0f, 0.0f, 1 };
-	GLfloat aLite[4] = { 0.3f, 0.3f, 0.3f, 1 };
-	GLfloat dLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
-	GLfloat sLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
-
-	//Fonte di luce in alto a dx (simula la luna?)
-	GLfloat PosLite[4] = { 1.0f, 1.0f, -0.5f, 0 };
-
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
-	glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
-
-	glEnable(GL_LIGHT0);
 
 	//Toglie il cursore
 	glutSetCursor(GLUT_CURSOR_NONE);

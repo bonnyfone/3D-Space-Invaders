@@ -41,7 +41,7 @@ bool Bomb::checkCollision(){
 	bool ris=false;
 	for(unsigned register int i = 0; i< possibileTarget.size(); i++){
 		if(possibileTarget.at(i)){
-			if(getY()-getDimY()/2 <= possibileTarget.at(i)->getL()){
+			if(getY()-getDimY() <= possibileTarget.at(i)->getL()){
 				possibileTarget.at(i)->setL(possibileTarget.at(i)->getL()-0.5f);
 
 				Building* toRemove = possibileTarget.at(i);
@@ -108,13 +108,10 @@ void Bomb::drawMe(){
 	glRotatef(getrZ(), 0, 0, 1);
 
 	float R = getDimX();
-	//glColor3f((rand()%100) / 100.0f, (rand()%100) / 100.0f, (rand()%100) / 100.0f);
 	glColor3f(0.3f,0.3f,0.3f);
-	//Cannone
-	//glEnable(GL_TEXTURE_2D);
-	//glBindTexture(GL_TEXTURE_2D, 1);
+
+
 	glutSolidSphere(getDimX(),20,10);
-	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 };
