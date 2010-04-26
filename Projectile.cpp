@@ -27,8 +27,15 @@ void Projectile::drawMe(){
 	glRotatef(getrY(), 0, 1, 0);
 	glRotatef(getrZ(), 0, 0, 1);
 
-	//glColor3f((rand()%100) / 100.0f, (rand()%100) / 100.0f, (rand()%100) / 100.0f);
-	glColor3f(0.3f,0.3f,0.9f);
+	GLfloat ambiente[4] =  { 0.2f, 0.7f, 0.2f, 1.0f };
+	GLfloat direttiva[4] =  { 0.2f,0.7f, 0.2f, 1.0f };
+	GLfloat brillante[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	//glMateriali(GL_FRONT, GL_SHININESS, 32);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
+
 	glutSolidSphere(getDimX(),20,10);
 
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto

@@ -1,6 +1,6 @@
 main.d main.o: ../main.cpp ../Obj.h ../Sector.h ../Building.h \
  ../DistructableObj.h ../Bomb.h ../MobileObj.h ../Cannon.h \
- ../Projectile.h
+ ../Projectile.h ../Explosion.h
 
 ../Obj.h:
 
@@ -17,3 +17,5 @@ main.d main.o: ../main.cpp ../Obj.h ../Sector.h ../Building.h \
 ../Cannon.h:
 
 ../Projectile.h:
+
+../Explosion.h:

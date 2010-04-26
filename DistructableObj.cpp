@@ -35,5 +35,7 @@ void DistructableObj::randomizeLife(){
 };
 
 DistructableObj::~DistructableObj() {
-	// TODO Auto-generated destructor stub
+
+	//Animazione della distruzione
+
 }

@@ -8,6 +8,7 @@ CPP_SRCS += \
 ../Building.cpp \
 ../Cannon.cpp \
 ../DistructableObj.cpp \
+../Explosion.cpp \
 ../MobileObj.cpp \
 ../Obj.cpp \
 ../Projectile.cpp \
@@ -19,6 +20,7 @@ OBJS += \
 ./Building.o \
 ./Cannon.o \
 ./DistructableObj.o \
+./Explosion.o \
 ./MobileObj.o \
 ./Obj.o \
 ./Projectile.o \
@@ -30,6 +32,7 @@ CPP_DEPS += \
 ./Building.d \
 ./Cannon.d \
 ./DistructableObj.d \
+./Explosion.d \
 ./MobileObj.d \
 ./Obj.d \
 ./Projectile.d \

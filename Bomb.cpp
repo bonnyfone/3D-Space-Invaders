@@ -95,7 +95,7 @@ void Bomb::setSector(Sector* mySector){
 };
 
 Bomb::~Bomb(){
-	//clearRef();
+	//Animazione distruzione
 	cout << "Deleted bomb" << endl;
 }
 
@@ -107,11 +107,16 @@ void Bomb::drawMe(){
 	glRotatef(getrY(), 0, 1, 0);
 	glRotatef(getrZ(), 0, 0, 1);
 
-	float R = getDimX();
-	glColor3f(0.3f,0.3f,0.3f);
+	GLfloat ambiente[4] =  { 0.3f, 0.3f, 0.6f, 1.0f };
+	GLfloat direttiva[4] =  { 0.3f,0.3f, 0.6f, 1.0f };
+	GLfloat brillante[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+	//glMateriali(GL_FRONT, GL_SHININESS, 32);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
 
-	glutSolidSphere(getDimX(),20,10);
+	glutSolidSphere(getDimX(),10,10);
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 };

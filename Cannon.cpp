@@ -58,16 +58,26 @@ void Cannon::drawMe(){
 	{
 		s = sin(alfa - step) /2;
 		c = cos(alfa - step) /2;
-		//glNormal3f(c,0,s);
-
+		glNormal3f(c,0,s);
 		glTexCoord2f(0, alfa/6.3f);
 		glVertex3f(c, -2, s);
 
+		glNormal3f(c,0,s);
 		glTexCoord2f(1, alfa/6.3f);
 		glVertex3f(c,  2, s);
 	}
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
+
+	GLfloat ambiente[4] = { 0.3f, 0.3f, 0.3f, 1 };
+	GLfloat direttiva[4] = { 0.3f, 0.3f, 0.3f, 1 };
+	GLfloat brillante[4] = { 0.7f, 0.7f, 0.7f, 1 };
+
+	glMateriali(GL_FRONT, GL_SHININESS, 32);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
+
 
 	glTranslatef(0,2,0);
 	glRotatef(90, 1, 0, 0);

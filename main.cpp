@@ -19,6 +19,8 @@
 #include "Bomb.h"
 #include "Cannon.h"
 #include "Projectile.h"
+#include "Explosion.h"
+
 
 void CambiaDim(int, int);
 void DisegnaTutto();
@@ -32,6 +34,7 @@ Obj* myObjs;
 vector<Sector*> myCitadel;
 vector<Bomb*> myBombs;
 vector<Projectile*> myAmmo;
+vector<Explosion*>myExplosions;
 Cannon* myCannon;
 
 
@@ -94,7 +97,17 @@ void TastoPremuto(unsigned char t, int, int)
 	glutPostRedisplay();		//richiesta di ridisegnare la finestra
 }
 
+void clearMaterial(){
+	//Variabili per definire materiali
+	GLfloat ambiente[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat direttiva[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat brillante[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+	//glMateriali(GL_FRONT, GL_SHININESS, 32);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
+}
 
 void CambiaDim(int w, int h)
 {
@@ -106,25 +119,55 @@ void CambiaDim(int w, int h)
 void Progress(){
 
 	//Ammo
+	register float distance;
 	for(register unsigned int i=0;i<myAmmo.size();i++){
 		myAmmo.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
+		for(register unsigned int j=0;j<myBombs.size();j++){
+			distance = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
+			distance = sqrt(distance);
+			if(distance <=1.0f){
+				myExplosions.push_back(new Explosion(myAmmo.at(i)->getX(),myAmmo.at(i)->getY(),myAmmo.at(i)->getZ()));
+				delete myBombs.at(j);
+				delete myAmmo.at(i);
+				myBombs.erase(myBombs.begin()+j);
+				myAmmo.erase(myAmmo.begin()+i);
+				j = myBombs.size();
+				i--;
+			}
+		}
+
 		if(myAmmo.at(i)->getZ() <= -150){
 			delete myAmmo.at(i);
 			myAmmo.erase(myAmmo.begin()+i);
 		}
 	}
 
-	//Check bombe
+
+	//Check bombe->edifici
 	for(register unsigned int i=0;i<myBombs.size();i++){
 		myBombs.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
-		if(bool coll=myBombs.at(i)->checkCollision() || myBombs.at(i)->getY() <= 0){
+		if(myBombs.at(i)->checkCollision() || myBombs.at(i)->getY() <= 0){
 			Bomb* check = myBombs.at(i);
 			myBombs.erase(myBombs.begin()+i);
+
+			//Aggiungo explosione
+			myExplosions.push_back(new Explosion(check->getX(),check->getY()+check->getDimY(),check->getZ()));
 
 			check->clearRef();
 			delete check;
 			i--;
 		}
+	}
+
+	//Gestione esplosioni
+	for(register unsigned int i=0;i<myExplosions.size();i++){
+		myExplosions.at(i)->processExplosion(glutGet(GLUT_ELAPSED_TIME)-delta_t);
+		if(myExplosions.at(i)->isFinished()){
+			delete myExplosions.at(i);
+			myExplosions.erase(myExplosions.begin()+i);
+			i--;
+		}
+
 	}
 
 	/* Nuove bombe totalmente casuali */
@@ -136,8 +179,8 @@ void Progress(){
 	*/
 
 	/* Nuove bombe su edifici casuali */
-	register unsigned int newbombs = rand() % 30;
-	if(newbombs >=27){
+	register unsigned int newbombs = rand() % 100;
+	if(myBombs.size()<=5 && newbombs >=95){
 		register int quarter = rand()%6;
 		//register int randomBuilding =
 		Sector* tmpSector = myCitadel.at(quarter);
@@ -191,22 +234,23 @@ void DisegnaTutto()
 	GLfloat sLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
 
 	//Fonte di luce in alto a dx (simula la luna?)
-	GLfloat PosLite[4] = { 15.0f, 10.0f, -15.0f, 1 };
-	/*glPushMatrix();
-	glTranslatef(15.0f,10.0f,-15.0f);
-	glutSolidSphere(2,20,20);
-	glPopMatrix();*/
+	GLfloat PosLite[4] = { 30.0f, 15.0f, -50.0f, 1 };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
 	glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
 
+
+	//Variabili per definire materiali
+	GLfloat ambiente[4] = { 0.8f, 0.8f, 0.6f, 1 };
+	GLfloat direttiva[4] = { 0.7f, 0.7f, 0.7f, 1 };
+	GLfloat brillante[4] = { 0.8f, 0.8f, 0.8f, 1 };
+
 	//Luna
+	glDisable(GL_LIGHTING);
+	glDisable(GL_LIGHT0);
 		glPushMatrix();
-		GLfloat ambiente[4] = { 0.7f, 0.7f, 0.7f, 1 };
-		GLfloat direttiva[4] = { 1, 1, 1, 1 };
-		GLfloat brillante[4] = { 1, 1, 1, 1 };
 
 		glMateriali(GL_FRONT, GL_SHININESS, 32);
 		glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
@@ -214,11 +258,13 @@ void DisegnaTutto()
 		glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
 
 		glTranslatef(45,20,-80);
-
-		glutSolidSphere(5,40,40);
+		glColor3f(0.8f,0.8f,0.7f);
+		glutSolidSphere(5,50,50);
 		glPopMatrix();
-
+		glEnable(GL_LIGHT0);
+		glEnable(GL_LIGHTING);
 	//cannone
+	clearMaterial();
 	myCannon->drawMe();
 
 	//Pavimento..
@@ -230,6 +276,7 @@ void DisegnaTutto()
 	glBindTexture(GL_TEXTURE_2D, 3);
 
 	//Terreno
+	clearMaterial();
 	for(a=-80; a<80; a+=delta)
 	{
 		glBegin(GL_QUAD_STRIP);
@@ -267,28 +314,6 @@ void DisegnaTutto()
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 
-
-
-
-/*
-	glColor3f(0.0f, 0.8f, 0.0f);
-	glBegin(GL_LINES);
-
-		for(a=-100; a<100; a+= 0.5f)
-		{
-			glVertex3f(a,ypos,-100);
-			glVertex3f(a,ypos,100);
-		}
-		for(a=-100; a<100; a+= 0.5f)
-		{
-			glVertex3f(-100,ypos,a);
-			glVertex3f(100,ypos,a);
-		}
-
-	glEnd();
-*/
-
-	glColor3f(1,0,0);
 
 	//Disegno settori
 	for(register unsigned int i=0; i< myCitadel.size();i++){
@@ -361,7 +386,10 @@ void DisegnaTutto()
 	for(register unsigned int i=0; i< myAmmo.size(); i++)
 		myAmmo.at(i)->drawMe();
 
-
+	//Esplosioni
+	for(register unsigned int i=0; i< myExplosions.size(); i++){
+		myExplosions.at(i)->drawMe();
+	}
 
 	glutSwapBuffers();
 }
@@ -606,10 +634,30 @@ int main(int argc, char **argv)
 			fclose(fHan);
 
 			GLubyte Texture6[256 * 256 * 3];
-			fHan = fopen("img/wall.raw", "rb");
+			fHan = fopen("img/wall4.raw", "rb");
 			if(fHan == NULL) return(0);
 			fread(Texture6, 256 * 256, 3, fHan);
 			fclose(fHan);
+
+			GLubyte Texture7[256 * 256 * 3];
+			fHan = fopen("img/wall3.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture7, 256 * 256, 3, fHan);
+			fclose(fHan);
+
+			GLubyte Texture8[256 * 256 * 3];
+			fHan = fopen("img/wall7.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture8, 256 * 256, 3, fHan);
+			fclose(fHan);
+
+			GLubyte Texture9[256 * 256 * 3];
+			fHan = fopen("img/wall6.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture9, 256 * 256, 3, fHan);
+			fclose(fHan);
+
+
 
 			Textures.push_back(Texture1);
 			Textures.push_back(Texture2);
@@ -617,7 +665,9 @@ int main(int argc, char **argv)
 			Textures.push_back(Texture4);
 			Textures.push_back(Texture5);
 			Textures.push_back(Texture6);
-
+			Textures.push_back(Texture7);
+			Textures.push_back(Texture8);
+			Textures.push_back(Texture9);
 
 	}
 

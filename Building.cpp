@@ -4,6 +4,7 @@
 Building::Building(float _X,float _Y,float _Z,float _rX,float _rY,float _rZ) : Obj(_X,_Y,_Z,0,0,0,_rX,_rY,_rZ), DistructableObj(_X,_Y,_Z,0,0,0,_rX,_rY,_rZ) {
 	cout << "##### Building creato! ######" << endl;
 	randomizeDimension();
+	texture_id = rand()%4;
 
 }
 
@@ -23,7 +24,7 @@ glRotatef(getrY(), 0, 1, 0);
 glRotatef(getrZ(), 0, 0, 1);
 
 glEnable(GL_TEXTURE_2D);
-glBindTexture(GL_TEXTURE_2D, 6);
+glBindTexture(GL_TEXTURE_2D, 6+texture_id);
 GLfloat ambiente[4] = { 1, 1, 1, 1 };
 GLfloat direttiva[4] = { 1, 1, 1, 1 };
 GLfloat brillante[4] = { 1, 1, 1, 1 };

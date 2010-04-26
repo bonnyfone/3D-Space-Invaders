@@ -9,6 +9,7 @@ class Building: public DistructableObj {
 private:
 	//Ingombro dell'edificio
 	float R;
+	int texture_id;
 
 public:
 	Building(float,float,float,float,float,float);
