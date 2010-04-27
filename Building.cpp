@@ -13,6 +13,10 @@ void Building::randomizeDimension(){
 	cout << "R:" << R;
 }
 
+float Building::getR() const{
+	return R;
+}
+
 void Building::drawMe(){
 glMatrixMode(GL_MODELVIEW);
 glPushMatrix();

@@ -15,7 +15,9 @@ public:
 	Building(float,float,float,float,float,float);
 
 	void randomizeDimension();
+	float getR() const;
 	virtual void drawMe();
+
 
 	virtual ~Building();
 };

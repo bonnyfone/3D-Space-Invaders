@@ -23,24 +23,64 @@ Bomb::Bomb(float _X,float _Y,float _Z, Sector* mySector, Building* myBuilding) :
 void Bomb::move(long time){
 	//Cinematica della bomba
 	setY(getY()-getvY()*time/speed);
+	setrZ(getrZ()+1.0f);
+	setrY(getrY()+1.0f);
+
 };
 
 void Bomb::autodetectBuildings(Building* myBuilding){
 	vector<Building*> others = currentSector->getBuildings();
 	for(unsigned int i=0; i< others.size(); i++){
-		if(others.at(i)->getX() == myBuilding->getX() && others.at(i)->getZ() == myBuilding->getZ()){
+		/*
+		 if(others.at(i)->getX() == myBuilding->getX() && others.at(i)->getZ() == myBuilding->getZ()){
 			possibileTarget.push_back(others.at(i));
 			others.at(i)->addRefer();
 		}
+		*/
+		//La mia distanza massima di collisione (raggio+semi-diagonale dell'edificio)-> APPROSSIMAZIONE accettabile
+		float impactDistance = this->getDimX() + others.at(i)->getR()*sqrt(2);
+		float effectiveDistance = sqrt(
+								  pow(this->getX()-others.at(i)->getX() ,2) +
+								  //pow(this->getY()-others.at(i)->getY() ,2) +
+								  pow(this->getZ()-others.at(i)->getZ() ,2));
+		if(effectiveDistance <= impactDistance){
+			possibileTarget.push_back(others.at(i));
+			others.at(i)->addRefer();
+		}
+		//(x1 − x0)2 + (y1 − y0)2 + (z1 − z0)2.
 	}
 	cout << "Possibile target estimated: " << possibileTarget.size() << endl;
 
 };
 
 bool Bomb::checkCollision(){
-	bool ris=false;
+	register bool ris=false;
+	register float max=0;
+	register int maxIndex=-1;
+
 	for(unsigned register int i = 0; i< possibileTarget.size(); i++){
-		if(possibileTarget.at(i)){
+		if(getY() <= possibileTarget.at(i)->getL()*2){
+			if(possibileTarget.at(i)->getL()>max){
+				max = possibileTarget.at(i)->getL();
+				maxIndex = i;
+			}
+		}
+	}
+
+	if(maxIndex != -1){
+		possibileTarget.at(maxIndex)->setL(possibileTarget.at(maxIndex)->getL()-0.5f);
+		Building* toRemove = possibileTarget.at(maxIndex);
+
+		if(possibileTarget.at(maxIndex)->getL() <= 0.0f){
+			cout << "checkCollisione,dentro if" << endl;
+			currentSector->removeBuilding(toRemove);
+		}
+		ris=true;
+	}
+
+	/*
+	for(unsigned register int i = 0; i< possibileTarget.size(); i++){
+		//if(possibileTarget.at(i)){
 			if(getY()-getDimY() <= possibileTarget.at(i)->getL()){
 				possibileTarget.at(i)->setL(possibileTarget.at(i)->getL()-0.5f);
 
@@ -60,8 +100,9 @@ bool Bomb::checkCollision(){
 				//MI FERMO SUBITO?
 				//return ris;
 			}
-		}
+		//}
 	}
+	*/
 	return ris;
 };
 
@@ -117,6 +158,10 @@ void Bomb::drawMe(){
 	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
 
 	glutSolidSphere(getDimX(),10,10);
+
+	glTranslatef(getDimX(),0,0);
+	glutSolidSphere(0.1f,10,10);
+
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 };
