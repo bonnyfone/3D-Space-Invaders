@@ -13,7 +13,7 @@
 #include <GL/glut.h>
 #include <vector>
 #include <string.h>
-
+#include <sstream>
 #include "Obj.h"
 #include "Sector.h"
 #include "Building.h"
@@ -31,10 +31,14 @@ using namespace std;
 
 
 /* ################################## GLOBALI ################################## */
-Obj* myObjs;
+float recoil;
+float recoilTime;
 float life;
 float initial;
-float score;
+int score;
+char stringscore[32];
+float gametime;
+float timecoeff;
 vector<Sector*> myCitadel;
 vector<Bomb*> myBombs;
 vector<Projectile*> myAmmo;
@@ -113,6 +117,7 @@ void clearMaterial(){
 	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
 }
 
+//Disegna una scritta (BitmapMode)
 void printBitmapString(void* font, char* s)
 {
    if (s && strlen(s)) {
@@ -121,6 +126,22 @@ void printBitmapString(void* font, char* s)
          s++;
       }
    }
+}
+
+//Disegna una scritta (StrokeMode)
+void printStrokeString(void* font, char* s)
+{
+   if (s && strlen(s)) {
+      while (*s) {
+         glutStrokeCharacter(font, *s);
+         s++;
+      }
+   }
+}
+
+void updateScore(int delta){
+	score += delta;
+	sprintf(stringscore,"%d",score); // string result '65' is stored in char array cVal
 }
 
 
@@ -141,7 +162,7 @@ void Progress(){
 	if(life==0){/* GAME OVER*/}
 
 	//Ammo collision
-	register float impactDistance = 0.8f;
+	register float impactDistance = 1.2f;
 	register float distance;
 	for(register unsigned int i=0;i<myAmmo.size();i++){
 		myAmmo.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
@@ -158,6 +179,7 @@ void Progress(){
 				j = myBombs.size();
 				i--;
 				die=true;
+				updateScore(5);
 			}
 		}
 
@@ -412,10 +434,8 @@ void DrawScene()
 
 
     /* ###############  2D WIDGET  ################# */
-	glPushMatrix();
+	//glPushMatrix();
 
-	glDisable(GL_LIGHT0);
-	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
@@ -427,52 +447,182 @@ void DrawScene()
 	glLoadIdentity();
 
 
-	register float posX  =-380.0f;
+	register float posX  =-360.0f;
 	register float posY  =-290.0f;
 	register float size = 100.0f;
 
-	//Vita
+	//Contenitori
+	clearMaterial();
+	//Sx
 	glPushMatrix();
-	glTranslatef (posX, posY, 0.0);
-	glBegin(GL_QUADS);
+		glEnable(GL_TEXTURE_2D);
+		glTranslatef (posX, posY, -0.1);
+		glBindTexture(GL_TEXTURE_2D, 11);
+		glBegin(GL_QUADS);
+				glNormal3f(1,0,0);
+				glTexCoord2f(0,1);
+				glVertex2f(-45.0f, -20.0f);
+				glTexCoord2f(0,0);
+				glVertex2f(-45.0f, 85.0f);
+				glTexCoord2f(0.7f,0);
+				glVertex2f(size+55, 85.0f);
+				glTexCoord2f(1,1);
+				glVertex2f(size+155, -20.0f);
 
-		glColor3f(0.4f,0.4f,0.4f);
-		glVertex2f(0.0f, 0.0f);
-		glVertex2f(0.0f, 20.0f);
-		glVertex2f(size, 20.0f);
-		glVertex2f(size, 0.0f);
+		glEnd();
 
-		glColor3f(0.1f,0.9f,0.1f);
-		glVertex2f(5.0f, 3.0f);
-		glVertex2f(5.0f, 17.0f);
-		glVertex2f(5.0f+(size-10.0f)*life/initial, 17.0f);
-		glVertex2f(5.0f+(size-10.0f)*life/initial, 3.0f);
-	glEnd();
+		glBindTexture(GL_TEXTURE_2D, 10);
+		glBegin(GL_QUADS);
+				glNormal3f(1,0,0);
+				glTexCoord2f(0,1);
+				glVertex2f(-45.0f, -20.0f);
+				glTexCoord2f(0,0);
+				glVertex2f(-45.0f, 80.0f);
+				glTexCoord2f(0.7f,0);
+				glVertex2f(size+50, 80.0f);
+				glTexCoord2f(1,1);
+				glVertex2f(size+150, -20.0f);
+		glEnd();
+	glPopMatrix();
 
+	//Dx
+	posX=360.0f;
+	glPushMatrix();
+		glEnable(GL_TEXTURE_2D);
+		glTranslatef (posX, posY, -0.1);
+		glBindTexture(GL_TEXTURE_2D, 11);
+		glBegin(GL_QUADS);
+				glNormal3f(-1,0,0);
+				glTexCoord2f(0,1);
+				glVertex2f(45.0f, -20.0f);
+				glTexCoord2f(0,0);
+				glVertex2f(45.0f, 85.0f);
+				glTexCoord2f(0.7f,0);
+				glVertex2f(-size-55, 85.0f);
+				glTexCoord2f(1,1);
+				glVertex2f(-size-155, -20.0f);
 
-	glRasterPos2f(-20,5);
-	printBitmapString(GLUT_BITMAP_HELVETICA_12,"LIFE");
+		glEnd();
+
+		glBindTexture(GL_TEXTURE_2D, 10);
+		glBegin(GL_QUADS);
+				glNormal3f(-1,0,0);
+				glTexCoord2f(0,1);
+				glVertex2f(45.0f, -20.0f);
+				glTexCoord2f(0,0);
+				glVertex2f(45.0f, 80.0f);
+				glTexCoord2f(0.7f,0);
+				glVertex2f(-size-50, 80.0f);
+				glTexCoord2f(1,1);
+				glVertex2f(-size-150, -20.0f);
+		glEnd();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHT0);
+	glDisable(GL_LIGHTING);
+
+	//Vita
+	posX=-360.0f;
+	size=80.0f;
+	glPushMatrix();
+		glTranslatef (posX, posY, 0.0);
+		glBegin(GL_QUADS);
+			glColor3f(0.1f,0.1f,0.1f);
+			glVertex2f(0.0f, 0.0f);
+			glVertex2f(0.0f, 20.0f);
+			glVertex2f(size, 20.0f);
+			glVertex2f(size, 0.0f);
+
+			glColor3f(0.1f,0.9f,0.1f);
+			glVertex2f(5.0f, 3.0f);
+			glVertex2f(5.0f, 17.0f);
+			glVertex2f(5.0f+(size-10.0f)*life/initial, 17.0f);
+			glVertex2f(5.0f+(size-10.0f)*life/initial, 3.0f);
+		glEnd();
+
+		glRasterPos2f(-30,5);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"LIFE");
+	glPopMatrix();
+
+	//Tempo
+	posY = -250.0f;
+	glPushMatrix();
+		glTranslatef (posX, posY, 0.0);
+		glBegin(GL_QUADS);
+
+			glColor3f(0.1f,0.1f,0.1f);
+			glVertex2f(0.0f, 0.0f);
+			glVertex2f(0.0f, 20.0f);
+			glVertex2f(size, 20.0f);
+			glVertex2f(size, 0.0f);
+
+			glColor3f(0.2f,0.7f,0.7f);
+			glVertex2f(5.0f, 3.0f);
+			glVertex2f(5.0f, 17.0f);
+			glVertex2f(5.0f+(size-10.0f)*gametime/(initial*timecoeff), 17.0f);
+			glVertex2f(5.0f+(size-10.0f)*gametime/(initial*timecoeff), 3.0f);
+		glEnd();
+
+		glRasterPos2f(-32,5);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"TIME");
+	glPopMatrix();
+
+	//Score
+	posX=-260.0f;
+	glPushMatrix();
+		glTranslatef (posX, posY, 0.0);
+		glColor3f(0.7f,0.7f,0.1f);
+		glRasterPos2f(0,5);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"SCORE");
+		glRasterPos2f(6,-20);
+		printBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,stringscore);
+	glPopMatrix();
+
+	//InfoCannone
+	/*
+	 posX=260.0f;
+	glPushMatrix();
+		glTranslatef (posX, posY, 0.1);
+		glColor3f(0.7f,0.7f,0.1f);
+		glutWireSphere(10,40,40);
+		glutSolidSphere(10,40,40);
+
+	glPopMatrix();
+	 */
+
+	//Recoil
+	posX=320.0f;
+	posY=-240.0f;
+	size=50;
+	glPushMatrix();
+		glTranslatef (posX, posY, 0.1);
+		glBegin(GL_QUADS);
+			glColor3f(0.1f,0.1f,0.1f);
+			glVertex2f(15.0f, 0.0f);
+			glVertex2f(15.0f, -size);
+			glVertex2f(45.0f, -size);
+			glVertex2f(45.0f, 0.0f);
+
+			//glColor3f(1/recoil,1-(1/recoil),0.1f);
+			glColor3f(1/recoil,0.1f,0.1f);
+			glVertex2f(20.0f, -5.0f);
+			glVertex2f(20.0f, -size+5);
+			glVertex2f(40.0f, -size+5);
+			glVertex2f(40.0f, -5.0f);
+		glEnd();
+
+		glColor3f(0.8f,0.1f,0.1f);
+		glRasterPos2f(10,13);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"RECOIL");
 
 	glPopMatrix();
 
-	//Testo
-
-
-/*
-		glColor3f(1, 0, 0);
-		glBegin(GL_TRIANGLES);//notare come, cambiando i colori mentre disegno, faccio le sfumature
-		glVertex2f(-3.1f, -1);
-		glColor3f(0, 1, 0);
-		glVertex2f(0, 2);
-		glColor3f(0, 0, 1);
-		glVertex2f(3.1f, 0);
-		glEnd();
-*/
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
-	glPopMatrix();
+	//glPopMatrix();
 
 	glutSwapBuffers();
 }
@@ -482,7 +632,8 @@ void DrawScene()
 void processMouseAction (int button, int state, int x, int y){
 	//	buttons[button] = state;
 
-	if(button==0 && state ==0){//singolo mouseClickDown
+	if(recoil >=10.0f && button==0 && state ==0){//singolo mouseClickDown
+		recoil=0.0f;
 		cout << "Sparato!!"<<endl;
 
 		//Fattore di spostamento trasversale (vX)
@@ -515,7 +666,10 @@ void processMouseAction (int button, int state, int x, int y){
 }
 
 void processTimedOperation(int i=0){
+	gametime -= 0.1f;
 	myCannon->targetingAnimation();
+	if(recoil < recoilTime)recoil += 1.0f;
+
 	glutTimerFunc(30,processTimedOperation,1);
 }
 
@@ -607,6 +761,8 @@ int main(int argc, char **argv)
 	 *
 	 */
 
+	//Inizializzazioni varie
+
 	//coord x da cui partire a generare i settori
 	int startX = -15;
 	//asse centrale della citta
@@ -621,14 +777,20 @@ int main(int argc, char **argv)
 	int xIterator = startX;
 	int yIterator = citysize;
 
+	life=0;
+	score=0;
+	updateScore(0);
+	gametime=0;
+	timecoeff=20.0f;
+	recoil=0.0f;
+	recoilTime=20.0f;
 
 	/*
 	 * Costruisco i quartieri con coordinate assolute, questo mi facilita la gestione di eventi
 	 * che si verificano lungo i confini tra i vari quartieri e all'interno di essi
      */
 	cout<< "## Building city... "<<endl;
-	life=0;
-	score=0;
+
 	for(int j=0; j<sectorPerLine*2; j++){
 
 		if(j==sectorPerLine){
@@ -681,6 +843,7 @@ int main(int argc, char **argv)
 		yIterator -= myWidth;
 	}
 	initial=life;
+	gametime=life*timecoeff;
 
 	myCannon = new Cannon();
 
@@ -742,6 +905,18 @@ int main(int argc, char **argv)
 			fread(Texture9, 256 * 256, 3, fHan);
 			fclose(fHan);
 
+			GLubyte Texture10[256 * 256 * 3];
+			fHan = fopen("img/metal3.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture10, 256 * 256, 3, fHan);
+			fclose(fHan);
+
+			GLubyte Texture11[256 * 256 * 3];
+			fHan = fopen("img/metal.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture11, 256 * 256, 3, fHan);
+			fclose(fHan);
+
 
 
 			Textures.push_back(Texture1);
@@ -753,6 +928,8 @@ int main(int argc, char **argv)
 			Textures.push_back(Texture7);
 			Textures.push_back(Texture8);
 			Textures.push_back(Texture9);
+			Textures.push_back(Texture10);
+			Textures.push_back(Texture11);
 
 	}
 
@@ -767,7 +944,7 @@ int main(int argc, char **argv)
 	}
 
 	//Posizione iniziale dell'osservatore
-	ossY=14;
+	ossY=13.3f;
 	ossZ=1;
 	ossX=0;
 	ossB=-17;
