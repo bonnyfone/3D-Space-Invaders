@@ -25,6 +25,7 @@ public:
 
 	void removeBuilding(Building*);
 
+	float getBuildingsLife()const;
 
 	//Disegna tutti gli edifici presenti nel settore
 	void drawBuildings();

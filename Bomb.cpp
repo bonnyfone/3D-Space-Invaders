@@ -7,7 +7,7 @@
 
 #include "Bomb.h"
 
-Bomb::Bomb(float _X,float _Y,float _Z) : Obj(_X,_Y,_Z, 0.4f,0.4f,0.4f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, 0,1,0) {
+Bomb::Bomb(float _X,float _Y,float _Z) : Obj(_X,_Y,_Z, 0.4f,0.4f,0.4f,rand()%360,rand()%360,rand()%360), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, 0,1,0) {
 	setL(1.0f);
 	cout << "New bomb created at (" << _X << "," << _Y << "," << _Z << ")" << endl;
 }
@@ -25,6 +25,8 @@ void Bomb::move(long time){
 	setY(getY()-getvY()*time/speed);
 	setrZ(getrZ()+1.0f);
 	setrY(getrY()+1.0f);
+	setrX(getrX()+1.0f);
+
 
 };
 

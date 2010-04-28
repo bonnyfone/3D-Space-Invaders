@@ -92,4 +92,12 @@
 				return;
 			}
 		}
+	};
+
+	float Sector::getBuildingsLife()const{
+		float tmp=0.0f;
+		for(register unsigned int i=0;i<buildings.size();i++){
+			tmp+=buildings.at(i)->getL();
+		}
+		return tmp;
 	}

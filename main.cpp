@@ -12,6 +12,7 @@
 #include <math.h>
 #include <GL/glut.h>
 #include <vector>
+#include <string.h>
 
 #include "Obj.h"
 #include "Sector.h"
@@ -23,7 +24,7 @@
 
 
 void CambiaDim(int, int);
-void DisegnaTutto();
+void DrawScene();
 void TastoPremuto(unsigned char, int, int);
 
 using namespace std;
@@ -31,6 +32,9 @@ using namespace std;
 
 /* ################################## GLOBALI ################################## */
 Obj* myObjs;
+float life;
+float initial;
+float score;
 vector<Sector*> myCitadel;
 vector<Bomb*> myBombs;
 vector<Projectile*> myAmmo;
@@ -109,16 +113,35 @@ void clearMaterial(){
 	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
 }
 
+void printBitmapString(void* font, char* s)
+{
+   if (s && strlen(s)) {
+      while (*s) {
+         glutBitmapCharacter(font, *s);
+         s++;
+      }
+   }
+}
+
+
 void CambiaDim(int w, int h)
 {
 	glViewport(0,0,w,h);
 	//glViewport(0,100,w,h);
 }
 
-//CALLBACK per l'evoluzione del gioco
+/*#################### CALLBACK progress del gioco #####################*/
 void Progress(){
 
-	//Ammo
+	//Life check
+	life=0;
+	for(register unsigned int i=0; i<myCitadel.size();i++){
+		life+=myCitadel.at(i)->getBuildingsLife();
+	}
+	if(life==0){/* GAME OVER*/}
+
+	//Ammo collision
+	register float impactDistance = 0.8f;
 	register float distance;
 	for(register unsigned int i=0;i<myAmmo.size();i++){
 		myAmmo.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
@@ -126,7 +149,7 @@ void Progress(){
 		for(register unsigned int j=0;j<myBombs.size();j++){
 			distance = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
 			distance = sqrt(distance);
-			if(distance <=1.0f){
+			if(distance <=impactDistance){
 				myExplosions.push_back(new Explosion(myAmmo.at(i)->getX(),myAmmo.at(i)->getY(),myAmmo.at(i)->getZ()));
 				delete myBombs.at(j);
 				delete myAmmo.at(i);
@@ -146,12 +169,15 @@ void Progress(){
 	}
 
 
-	//Check bombe->edifici
+	//Collision bombe->edifici
 	for(register unsigned int i=0;i<myBombs.size();i++){
 		myBombs.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
-		if(myBombs.at(i)->checkCollision() || myBombs.at(i)->getY() <= 0){
+		if(bool coll=myBombs.at(i)->checkCollision() || myBombs.at(i)->getY() <= 0){
 			Bomb* check = myBombs.at(i);
 			myBombs.erase(myBombs.begin()+i);
+
+			//Aggiorno vita
+			if(coll)life-=0.5f;
 
 			//Aggiungo explosione
 			myExplosions.push_back(new Explosion(check->getX(),check->getY()+check->getDimY(),check->getZ()));
@@ -173,13 +199,6 @@ void Progress(){
 
 	}
 
-	/* Nuove bombe totalmente casuali */
-
-	/*register int meno=1;
-	if(rand()%2 ==0)meno=-1;
-	register unsigned int newbombs = rand() % 35;
-	if(newbombs >=30) myBombs.push_back(new Bomb(meno*rand()%15,20,-rand()%50));
-	*/
 
 	/* Nuove bombe su edifici casuali */
 	register unsigned int newbombs = rand() % 100;
@@ -189,7 +208,7 @@ void Progress(){
 		Sector* tmpSector = myCitadel.at(quarter);
 		Building* tmpBuilding = tmpSector->getRandomBuilding();
 		if(tmpBuilding){
-			Bomb* newBomb = new Bomb(tmpBuilding->getX(),20,tmpBuilding->getZ(),  tmpSector,tmpBuilding);
+			Bomb* newBomb = new Bomb(tmpBuilding->getX(),25,tmpBuilding->getZ(),  tmpSector,tmpBuilding);
 			myBombs.push_back(newBomb);
 		}
 	}
@@ -198,22 +217,18 @@ void Progress(){
 	delta_t = glutGet(GLUT_ELAPSED_TIME);
 
 	glutPostRedisplay();
-	//glutTimerFunc(33,gira,1);
-	//glutIdleFunc(gira);
 }
 
-void DisegnaTutto()
+/*################## CALLBACK di visualizzazione ##################*/
+void DrawScene()
 {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glMatrixMode(GL_PROJECTION); //-> lavora sulla matrice di proiezione
 	glLoadIdentity();
-	//glOrtho(-4,4,-4,4, -1,1); //non più questa, vogliamo una trasformazione PROSPETTICA!
 
-	//glFrustum(-0.25f, 0.25f, -0.25f, 0.25f,  pNear,2000);
 	glFrustum(-0.4f, 0.4f, -0.25f, 0.25f,  pNear,2000);
-	//IMPORTANTE
 	//i primi 4 parametri individuano l'apetura sul piano "near"
 	//gli ultimi due sono: la distanza dal piano near, la distanza dal piano far
 
@@ -264,8 +279,9 @@ void DisegnaTutto()
 		glColor3f(0.8f,0.8f,0.7f);
 		glutSolidSphere(5,50,50);
 		glPopMatrix();
-		glEnable(GL_LIGHT0);
-		glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHTING);
+
 	//cannone
 	clearMaterial();
 	myCannon->drawMe();
@@ -394,6 +410,70 @@ void DisegnaTutto()
 		myExplosions.at(i)->drawMe();
 	}
 
+
+    /* ###############  2D WIDGET  ################# */
+	glPushMatrix();
+
+	glDisable(GL_LIGHT0);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-400,400, -300,300, -1,1);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+
+	register float posX  =-380.0f;
+	register float posY  =-290.0f;
+	register float size = 100.0f;
+
+	//Vita
+	glPushMatrix();
+	glTranslatef (posX, posY, 0.0);
+	glBegin(GL_QUADS);
+
+		glColor3f(0.4f,0.4f,0.4f);
+		glVertex2f(0.0f, 0.0f);
+		glVertex2f(0.0f, 20.0f);
+		glVertex2f(size, 20.0f);
+		glVertex2f(size, 0.0f);
+
+		glColor3f(0.1f,0.9f,0.1f);
+		glVertex2f(5.0f, 3.0f);
+		glVertex2f(5.0f, 17.0f);
+		glVertex2f(5.0f+(size-10.0f)*life/initial, 17.0f);
+		glVertex2f(5.0f+(size-10.0f)*life/initial, 3.0f);
+	glEnd();
+
+
+	glRasterPos2f(-20,5);
+	printBitmapString(GLUT_BITMAP_HELVETICA_12,"LIFE");
+
+	glPopMatrix();
+
+	//Testo
+
+
+/*
+		glColor3f(1, 0, 0);
+		glBegin(GL_TRIANGLES);//notare come, cambiando i colori mentre disegno, faccio le sfumature
+		glVertex2f(-3.1f, -1);
+		glColor3f(0, 1, 0);
+		glVertex2f(0, 2);
+		glColor3f(0, 0, 1);
+		glVertex2f(3.1f, 0);
+		glEnd();
+*/
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHTING);
+	glPopMatrix();
+
 	glutSwapBuffers();
 }
 
@@ -487,7 +567,7 @@ int main(int argc, char **argv)
 	glutEnterGameMode();
 
 	glutReshapeFunc(CambiaDim);
-	glutDisplayFunc(DisegnaTutto);
+	glutDisplayFunc(DrawScene);
 	glutKeyboardFunc(TastoPremuto);
 
 	//Cattura movimenti mouse
@@ -547,6 +627,8 @@ int main(int argc, char **argv)
 	 * che si verificano lungo i confini tra i vari quartieri e all'interno di essi
      */
 	cout<< "## Building city... "<<endl;
+	life=0;
+	score=0;
 	for(int j=0; j<sectorPerLine*2; j++){
 
 		if(j==sectorPerLine){
@@ -584,6 +666,7 @@ int main(int argc, char **argv)
 			int myrY = rand() % 360;
 
 			Building* newBuilding = new Building(relPosX,0,-1*relPosZ, 0,myrY,0);
+			life+=newBuilding->getL();
 			newSector->addBuilding(newBuilding);
 			//myObjCitadel.push_back(*newBuilding);
 		}
@@ -597,6 +680,7 @@ int main(int argc, char **argv)
 		xIterator += myWidth;
 		yIterator -= myWidth;
 	}
+	initial=life;
 
 	myCannon = new Cannon();
 
