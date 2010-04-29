@@ -950,8 +950,6 @@ int main(int argc, char **argv)
 			Textures.push_back(Texture11);
 			Textures.push_back(Texture12);
 			Textures.push_back(Texture13);
-
-
 	}
 
 	for(unsigned int i=0; i<Textures.size(); i++){

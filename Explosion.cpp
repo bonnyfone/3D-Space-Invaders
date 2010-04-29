@@ -7,19 +7,77 @@
 
 #include "Explosion.h"
 
+//Inizializzo l'array statico che individue le "luci disponibili"
+bool Explosion::availableLight[7] = {true,true,true,true,true,true,true};
+
+
 Explosion::Explosion(float _X,float _Y,float _Z) : Obj(_X,_Y,_Z)  {
 radius=1.5f;
 spriteframe=0;
+lightPos=1;
+deltal=0.0f;
+
+for(int i=0;i<7;i++){
+	if(Explosion::availableLight[i]){
+		availableLight[i]=false;
+		lightPos = i+1;
+		i=8;
+	}
+}
+
+if(lightPos==1)
+	myLight=GL_LIGHT1;
+else if(lightPos==2)
+	myLight=GL_LIGHT2;
+else if(lightPos==3)
+	myLight=GL_LIGHT3;
+else if(lightPos==4)
+	myLight=GL_LIGHT4;
+else if(lightPos==5)
+	myLight=GL_LIGHT5;
+else if(lightPos==6)
+	myLight=GL_LIGHT6;
+else if(lightPos==7)
+	myLight=GL_LIGHT7;
+
+cout << "Luce scelta " << lightPos << endl;
+
+//Luce
+GLfloat aLite[4] = { 0.0f, 0.0f, 0.0f, 1 };
+GLfloat dLite[4] = { deltal, deltal, 0.1f, 1 };
+GLfloat sLite[4] = { deltal, deltal, 0.1f, 1 };
+GLfloat PosLite[4] = { _X, _Y, _Z, 1 };
+glLightfv(myLight, GL_AMBIENT, aLite);
+glLightfv(myLight, GL_DIFFUSE, dLite);
+glLightfv(myLight, GL_SPECULAR, sLite);
+glLightfv(myLight, GL_POSITION, PosLite);
+
+glEnable(myLight);
 }
 
 void Explosion::processExplosion(int delta){
 //radius+=0.1f;
 spriteframe++;
+
+if(spriteframe<10)
+	deltal+=0.09f;
+else
+	deltal-=0.09f;
+
+GLfloat aLite[4] = { 0.0f, 0.0f, 0.0f, 1 };
+GLfloat dLite[4] = { deltal, deltal, 0.1f, 1 };
+GLfloat sLite[4] = { deltal, deltal, 0.1f, 1 };
+glLightfv(myLight, GL_AMBIENT, aLite);
+glLightfv(myLight, GL_DIFFUSE, dLite);
+glLightfv(myLight, GL_SPECULAR, sLite);
+
+
 }
 
 bool Explosion::isFinished(){
 if(spriteframe>19)return true;
 return false;
+
 }
 
 
@@ -47,6 +105,7 @@ void Explosion::drawMe(){
 
 	glBlendFunc(GL_DST_COLOR,GL_ZERO);
 
+	//Applico la maschera per la trasparenza
 	glBegin(GL_QUADS);
 		glTexCoord2f((spriteframe%perline)*deltaX,spriteframe/perline*deltaY);
 		glVertex3f(-radius,radius,0);
@@ -57,10 +116,8 @@ void Explosion::drawMe(){
 		glTexCoord2f((spriteframe%perline)*deltaX,(spriteframe/perline+1)*deltaY);
 		glVertex3f(-radius,-radius,0);
 	glEnd();
-	//then draw your textured quad (which will be the mask)
 
-
-	// SPRITE texture
+	// Disegno la sprite
 	glTranslatef(0,0,0.1f);
 	glBindTexture(GL_TEXTURE_2D, 12);
 	glBlendFunc(GL_ONE,GL_ONE);
@@ -77,18 +134,16 @@ void Explosion::drawMe(){
 	glEnd();
 
 	glDisable(GL_BLEND);
-
 	glEnable(GL_CULL_FACE);
-	//glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
 
-
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
-
 };
 
 
 Explosion::~Explosion() {
 	// TODO Auto-generated destructor stub
+	glDisable(myLight);
+	availableLight[lightPos]=true;
 }

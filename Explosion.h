@@ -14,7 +14,11 @@ class Explosion: public Obj {
 
 private:
 	float radius;
+	float deltal;
 	int spriteframe;
+	unsigned int myLight;
+	int lightPos;
+	static bool availableLight[7];
 
 public:
 	Explosion(float,float,float);
