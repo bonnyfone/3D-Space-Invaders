@@ -10,6 +10,7 @@
 Cannon::Cannon() : Obj(0,10,-2, 1,1,2, 0,0,0) {
 	targeting=0.0f;
 	targetingSystem=true;
+	recoil=0.0f;
 }
 
 
@@ -29,6 +30,7 @@ void Cannon::drawMe(){
 	glRotatef(getrX(), 1, 0, 0);
 	glRotatef(getrY(), 0, 1, 0);
 	glRotatef(getrZ(), 0, 0, 1);
+	glTranslatef(0.0f,getRecoil(),0.0f);
 
 	//glColor3f((rand()%100) / 100.0f, (rand()%100) / 100.0f, (rand()%100) / 100.0f);
 	float alfa;
@@ -84,6 +86,14 @@ void Cannon::drawMe(){
 	glutSolidTorus(0.2f,0.5f,20,20);
 
 	glPopMatrix();
+}
+
+void Cannon::setRecoil(float mv){
+	recoil = mv;
+}
+
+float Cannon::getRecoil()const{
+	return recoil;
 }
 
 Cannon::~Cannon() {

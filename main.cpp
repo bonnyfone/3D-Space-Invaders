@@ -632,7 +632,8 @@ void DrawScene()
 void processMouseAction (int button, int state, int x, int y){
 	//	buttons[button] = state;
 
-	if(recoil >=10.0f && button==0 && state ==0){//singolo mouseClickDown
+	if(recoil >=recoilTime && button==0 && state ==0){//singolo mouseClickDown
+		myCannon->setRecoil(-1.0f);
 		recoil=0.0f;
 		cout << "Sparato!!"<<endl;
 
@@ -665,25 +666,28 @@ void processMouseAction (int button, int state, int x, int y){
 
 }
 
+/*############# CALLBACK gestione eventi strettamente temporali #################*/
 void processTimedOperation(int i=0){
 	gametime -= 0.1f;
 	myCannon->targetingAnimation();
-	if(recoil < recoilTime)recoil += 1.0f;
+
+	//Rinculo del cannone
+	if(recoil < recoilTime){
+		myCannon->setRecoil(-(1-recoil/recoilTime));
+		recoil += 1.0f;
+	}
 
 	glutTimerFunc(30,processTimedOperation,1);
 }
 
 void processMouseActiveMotion(int x, int y){
-
-	//Cubo.X = (x-640)/80;
-	//Cubo.Y = (-y+400)/50;
 	//Muove il cannone
 	cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
 
 	register float halfScreen = 640.0f;
 	register float myVal = ((x-halfScreen)/halfScreen);
 	register float angle = acos(myVal)*180.0f/PI - 90.0f;
-	//angle=angle /100*80;
+
 	cout << "Mouse acos in gradi = " << angle << endl;
 
 	myCannon->setrZ(angle);
@@ -693,7 +697,7 @@ void processMouseActiveMotion(int x, int y){
 	halfScreen = 400.0f;
 	myVal = ((y-halfScreen)/halfScreen);
 	angle = acos(myVal)*180.0f/PI - 180.0f;
-	//angle=min(-30.0f,angle /100*70);
+	//angle=min(-30.0f,angle);
 	//angle=angle /100*80;
 
 	cout << "Mouse acos in gradi = " << angle << endl;
@@ -737,6 +741,9 @@ int main(int argc, char **argv)
 
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
+	//glClearColor(0.0f,0.0f,0.0f,1.0f);
+    //glDepthMask(GL_TRUE);
+
 
 	GLfloat black[4] = { 0.0f, 0.0f, 0.0f, 1 };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
@@ -782,8 +789,8 @@ int main(int argc, char **argv)
 	updateScore(0);
 	gametime=0;
 	timecoeff=20.0f;
-	recoil=0.0f;
 	recoilTime=20.0f;
+	recoil=recoilTime;
 
 	/*
 	 * Costruisco i quartieri con coordinate assolute, questo mi facilita la gestione di eventi
@@ -917,6 +924,17 @@ int main(int argc, char **argv)
 			fread(Texture11, 256 * 256, 3, fHan);
 			fclose(fHan);
 
+			GLubyte Texture12[256 * 256 * 3];
+			fHan = fopen("img/sprite.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture12, 256 * 256, 3, fHan);
+			fclose(fHan);
+
+			GLubyte Texture13[256 * 256 * 3];
+			fHan = fopen("img/spritemask.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture13, 256 * 256, 3, fHan);
+			fclose(fHan);
 
 
 			Textures.push_back(Texture1);
@@ -930,6 +948,9 @@ int main(int argc, char **argv)
 			Textures.push_back(Texture9);
 			Textures.push_back(Texture10);
 			Textures.push_back(Texture11);
+			Textures.push_back(Texture12);
+			Textures.push_back(Texture13);
+
 
 	}
 

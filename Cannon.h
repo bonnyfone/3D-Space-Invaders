@@ -15,6 +15,7 @@ class Cannon: public Obj {
 private:
 	bool targetingSystem;
 	float targeting;
+	float recoil;
 
 public:
 	Cannon();
@@ -24,6 +25,10 @@ public:
 	void targetingAnimation();
 
 	void swapTargetingEnabled();
+
+	void setRecoil(float);
+
+	float getRecoil() const;
 
 	virtual ~Cannon();
 };

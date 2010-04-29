@@ -14,6 +14,7 @@ class Explosion: public Obj {
 
 private:
 	float radius;
+	int spriteframe;
 
 public:
 	Explosion(float,float,float);
