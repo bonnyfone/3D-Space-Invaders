@@ -9,7 +9,7 @@ Building::Building(float _X,float _Y,float _Z,float _rX,float _rY,float _rZ) : O
 }
 
 void Building::randomizeDimension(){
-	R = (rand()%150+15)/100.0f;
+	R = (rand()%150+40)/100.0f;
 	cout << "R:" << R;
 }
 
@@ -106,34 +106,6 @@ glBegin(GL_QUADS);
 glEnd();
 glDisable(GL_TEXTURE_2D);
 
-//Bordi neri
-/*
-glColor3f(0, 0, 0);
-glBegin(GL_LINE_LOOP); //"prima faccia" del cubo
-glVertex3f(-1,-1,1);
-glVertex3f(1,-1,1);
-glVertex3f(1,1,1);
-glVertex3f(-1,1,1);
-glEnd();
-
-glBegin(GL_LINE_LOOP); //seconda faccia del cubo
-glVertex3f(-1,-1,-1);
-glVertex3f(1,-1,-1);
-glVertex3f(1,1,-1);
-glVertex3f(-1,1,-1);
-glEnd();
-
-glBegin(GL_LINES);//I 4 segmenti che collegano le facce
-	glVertex3f(-1,-1,-1);
-	glVertex3f(-1,-1,1);
-	glVertex3f(1,-1,-1);
-	glVertex3f(1,-1,1);
-	glVertex3f(1,1,-1);
-	glVertex3f(1,1,1);
-	glVertex3f(-1,1,-1);
-	glVertex3f(-1,1,1);
-glEnd();
-*/
 glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 }

@@ -325,12 +325,13 @@ void DrawScene()
 
 				if(c%2 == 0)glTexCoord2f(0,0);
 				else glTexCoord2f(0,1);
-
+				//glNormal3f(0,0.1f,0);
 				glVertex3f(a,0,z);
 
 				if(c%2 == 0)glTexCoord2f(1,0);
 				else glTexCoord2f(1,1);
 
+				//glNormal3f(0,0.1f,0);
 				glVertex3f(a+delta,0,z);
 		}
 		glEnd();
@@ -580,16 +581,56 @@ void DrawScene()
 	glPopMatrix();
 
 	//InfoCannone
-	/*
-	 posX=260.0f;
+	posX=260.0f;
+	posY=-258.0f;
+	size=35.0f;
 	glPushMatrix();
 		glTranslatef (posX, posY, 0.1);
-		glColor3f(0.7f,0.7f,0.1f);
-		glutWireSphere(10,40,40);
-		glutSolidSphere(10,40,40);
+		glColor3f(0.1f,0.1f,0.1f);
+		glBegin(GL_QUADS);
+			glVertex3f(-size,size,0);
+			glVertex3f(size,size,0);
+			glVertex3f(size,-size,0);
+			glVertex3f(-size,-size,0);
 
+			size=30.0f;
+			glColor3f(0.1f,0.1f,0.2f);
+			glVertex3f(-size,size,0);
+			glVertex3f(size,size,0);
+			glVertex3f(size,-size,0);
+			glVertex3f(-size,-size,0);
+		glEnd();
+
+		glColor3f(0.0f,1.0f,0.0f);
+		glBegin(GL_LINES);
+			glVertex3f(0,size,0);
+			glVertex3f(0,-size,0);
+
+			glVertex3f(-size,0,0);
+			glVertex3f(size,0,0);
+
+			glColor3f(1,1,1);
+			//glVertex3f(0,0,0);
+			glVertex3f(cos((myCannon->getrZ()+90.0f)/180.0f*PI)*size*2,sin((myCannon->getrX()+90.0f)/180.0f*PI)*size*2,0);
+			glVertex3f(cos((myCannon->getrZ()+90.0f)/180.0f*PI)*size*2,0,0);
+
+			glVertex3f(cos((myCannon->getrZ()+90.0f)/180.0f*PI)*size*2,sin((myCannon->getrX()+90.0f)/180.0f*PI)*size*2,0);
+			glVertex3f(0,sin((myCannon->getrX()+90.0f)/180.0f*PI)*size*2,0);
+		glEnd();
+
+		glColor3f(1,0,0);
+		glTranslatef(cos((myCannon->getrZ()+90.0f)/180.0f*PI)*size*2,sin((myCannon->getrX()+90.0f)/180.0f*PI)*size*2,0.01f);
+		glutSolidSphere(2.0f,10,10);
+		/*
+		glBegin(GL_LINES);
+			glVertex3f(0,0,0);
+			glVertex3f(cos((myCannon->getrZ()-90.0f)/180.0f*PI)*size*2,sin((myCannon->getrX()+90.0f)/180.0f*PI)*size*2,0);
+
+		glEnd();
+		*/
+		//glutWireSphere(10,40,40);
+		//glutSolidSphere(10,40,40);
 	glPopMatrix();
-	 */
 
 	//Recoil
 	posX=320.0f;
