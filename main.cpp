@@ -167,6 +167,7 @@ void Progress(){
 	for(register unsigned int i=0;i<myAmmo.size();i++){
 		myAmmo.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
 		register bool die=false;
+		//->bombs
 		for(register unsigned int j=0;j<myBombs.size();j++){
 			distance = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
 			distance = sqrt(distance);
@@ -180,6 +181,35 @@ void Progress(){
 				i--;
 				die=true;
 				updateScore(5);
+			}
+		}
+		//->buildings
+		for(register unsigned int k=0;k<myCitadel.size()&& !die;k++){
+			Sector* checkSect = myCitadel.at(k);
+			for(register unsigned int m=0; m < checkSect->getBuildings().size(); m++){
+
+				register float impactDistance = myAmmo.at(i)->getDimX() + checkSect->getBuildings().at(m)->getR()*sqrt(2);
+				register float effectiveDistance = sqrt(
+											  pow(myAmmo.at(i)->getX()-checkSect->getBuildings().at(m)->getX() ,2) +
+											  //pow(this->getY()-others.at(i)->getY() ,2) +
+											  pow(myAmmo.at(i)->getZ()-checkSect->getBuildings().at(m)->getZ() ,2));
+
+				if(effectiveDistance <= impactDistance && 	myAmmo.at(i)->getY() <= checkSect->getBuildings().at(m)->getL()*2){
+						checkSect->getBuildings().at(m)->setL(checkSect->getBuildings().at(m)->getL()-0.5f);
+						myExplosions.push_back(new Explosion(myAmmo.at(i)->getX(),myAmmo.at(i)->getY()+myAmmo.at(i)->getDimY(),myAmmo.at(i)->getZ()));
+						delete myAmmo.at(i);
+						myAmmo.erase(myAmmo.begin()+i);
+
+						if(checkSect->getBuildings().at(m)->getL() <= 0.0f){
+							cout << "checkCollisione,dentro if" << endl;
+							checkSect->removeBuilding(checkSect->getBuildings().at(m));
+						}
+						//others.at(i)->addRefer();
+						m=checkSect->getBuildings().size();
+						k=myCitadel.size();
+						i--;
+						die=true;
+				}
 			}
 		}
 
