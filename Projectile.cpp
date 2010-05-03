@@ -8,12 +8,15 @@
 #include "Projectile.h"
 
 Projectile::Projectile(float _X,float _Y,float _Z, float _vX,float _vY,float _vZ) : Obj(_X,_Y,_Z, 0.3f,0.3f,0.3f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, _vX,_vY,_vZ) {
-	// TODO Auto-generated constructor stub
-
+	oldX = _X;
+	oldY = _Y;
+	oldZ = _Z;
 }
 
 void Projectile::move(long time){
-
+	oldX = getX();
+	oldY = getY();
+	oldZ = getZ();
 	setX(getX()-getvX()*time/speed);
 	setY(getY()-getvY()*time/speed);
 	setZ(getZ()-getvZ()*time/speed);
@@ -41,6 +44,10 @@ void Projectile::drawMe(){
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 };
+
+float Projectile::getOldX()const { return oldX; }
+float Projectile::getOldY()const { return oldY; }
+float Projectile::getOldZ()const { return oldZ; }
 
 Projectile::~Projectile() {
 	cout << "Projectile deleted" << endl;

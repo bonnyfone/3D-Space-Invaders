@@ -109,8 +109,8 @@ void clearMaterial(){
 	//Variabili per definire materiali
 	GLfloat ambiente[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat direttiva[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat brillante[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
+	//GLfloat brillante[4] = { 0.0f, 0.0f,0.0f, 0.0f };
+	GLfloat brillante[4] = { 1.0f, 1.0f,1.0f, 1.0f };
 	//glMateriali(GL_FRONT, GL_SHININESS, 32);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
@@ -161,17 +161,41 @@ void Progress(){
 	}
 	if(life==0){/* GAME OVER*/}
 
-	//Ammo collision
-	register float impactDistance = 1.2f;
-	register float distance;
+	/*--- Ammo collision ---*/
+	register float impactDistance = 1.0f;
+	register float distanceAB;
+	register float distanceAC;
+	register float distanceBC;
+	register float semi;
+	register float h;
+
 	for(register unsigned int i=0;i<myAmmo.size();i++){
 		myAmmo.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
 		register bool die=false;
-		//->bombs
+
+		//->with bombs
+		distanceAB =sqrt( pow(myAmmo.at(i)->getX() -myAmmo.at(i)->getOldX(),2) + pow(myAmmo.at(i)->getY() - myAmmo.at(i)->getOldY(),2) + pow(myAmmo.at(i)->getZ() - myAmmo.at(i)->getOldZ(),2) );
 		for(register unsigned int j=0;j<myBombs.size();j++){
-			distance = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
-			distance = sqrt(distance);
-			if(distance <=impactDistance){
+			//distance = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
+			//distance = sqrt(distance);
+
+			//Metodo della triangolazione (sfrutta Erone)
+			if(myBombs.at(j)->getZ() >= myAmmo.at(i)->getZ() && myBombs.at(j)->getZ() <= myAmmo.at(i)->getOldZ() ){
+				distanceAC = sqrt( pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2) );
+				distanceBC = sqrt( pow(myAmmo.at(i)->getOldX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getOldY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getOldZ() - myBombs.at(j)->getZ(),2) );
+				semi = (distanceAB+distanceAC+distanceBC)/2.0f;
+				h = pow( (2*semi*(semi-distanceAB)*(semi-distanceAC)*(semi-distanceBC))/distanceAB , 2);
+				//Lavoro volutamente coi quadrati, per risparmiare un controllo sotto e la sqrt nel caso base
+				cout << "Coll " << endl;
+			}
+			else{//Metodo della distanza semplice
+				h = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
+				//h = sqrt( pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2) );
+				//Evito la sqrt per velocizzare e lavoro coi quadrati
+			}
+
+			//if(distance <=impactDistance){
+			if(h <=impactDistance){
 				myExplosions.push_back(new Explosion(myAmmo.at(i)->getX(),myAmmo.at(i)->getY(),myAmmo.at(i)->getZ()));
 				delete myBombs.at(j);
 				delete myAmmo.at(i);
@@ -183,7 +207,7 @@ void Progress(){
 				updateScore(5);
 			}
 		}
-		//->buildings
+		//->with buildings
 		for(register unsigned int k=0;k<myCitadel.size()&& !die;k++){
 			Sector* checkSect = myCitadel.at(k);
 			for(register unsigned int m=0; m < checkSect->getBuildings().size(); m++){
@@ -213,7 +237,7 @@ void Progress(){
 			}
 		}
 
-		if(!die && myAmmo.at(i)->getZ() <= -110){
+		if(!die && (myAmmo.at(i)->getZ() <= -110 || myAmmo.at(i)->getY()<=0)){
 			delete myAmmo.at(i);
 			myAmmo.erase(myAmmo.begin()+i);
 			i--;
@@ -302,7 +326,7 @@ void DrawScene()
 	GLfloat dLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
 	GLfloat sLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
 
-	//Fonte di luce in alto a dx (simula la luna?)
+	//Fonte di luce in alto a dx (simula la luna)
 	GLfloat PosLite[4] = { 30.0f, 15.0f, -50.0f, 1 };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);

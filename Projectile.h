@@ -15,6 +15,7 @@ class Projectile: public MobileObj, public DistructableObj {
 
 private:
 	static const int speed = 10;
+	float oldX,oldY,oldZ;
 
 public:
 	Projectile(float,float,float, float,float,float);
@@ -22,6 +23,11 @@ public:
 	void drawMe();
 
 	void move(long);
+
+	float getOldX() const;
+	float getOldY() const;
+	float getOldZ() const;
+
 
 	virtual ~Projectile();
 };

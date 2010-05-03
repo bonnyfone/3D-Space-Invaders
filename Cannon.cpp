@@ -39,22 +39,10 @@ void Cannon::drawMe(){
 
 	step=6.3f / 64.0f;
 
-	//Mirino
-	if(targetingSystem){
-		glColor3f(1.0f,0.1f,0.1f);
-		glBegin(GL_LINES);
-		for(register float i=targeting; i<100; i+=1.0f){
-			glVertex3f(0, i*2, 0);
-			glVertex3f(0, i*2+0.5f, 0);
-		}
-		glEnd();
-	}
-
 
 	//Cannone
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 1);
-	glColor3f(0.2f,0.2f,0.2f);
 	glBegin(GL_QUAD_STRIP);
 	for(alfa = 0; alfa < 6.3f; alfa += step) //messo di proposito 6.29f per esser sicuri di fare un giro completo (circa 2pigreco=360°)
 	{
@@ -80,10 +68,21 @@ void Cannon::drawMe(){
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
 
-
+	glPushMatrix();
 	glTranslatef(0,2,0);
 	glRotatef(90, 1, 0, 0);
 	glutSolidTorus(0.2f,0.5f,20,20);
+	glPopMatrix();
+
+	//Mirino
+	if(targetingSystem){
+		glBegin(GL_LINES);
+		for(register float i=targeting; i<100; i+=1.0f){
+			glVertex3f(0, i*2, 0);
+			glVertex3f(0, i*2+0.5f, 0);
+		}
+		glEnd();
+	}
 
 	glPopMatrix();
 }
