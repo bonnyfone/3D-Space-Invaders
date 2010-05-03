@@ -296,7 +296,6 @@ void DrawScene()
 	glRotatef(-ossB, 1, 0, 0); //imp per prima..
 	glRotatef(-ossA, 0, 1, 0); //imp
 	glTranslatef(-ossX,-ossY,-ossZ);
-	//glPushMatrix();//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< SALVO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 	//Luce
 	GLfloat aLite[4] = { 0.3f, 0.3f, 0.3f, 1 };
@@ -317,71 +316,6 @@ void DrawScene()
 	GLfloat direttiva[4] = { 0.7f, 0.7f, 0.7f, 1 };
 	GLfloat brillante[4] = { 0.8f, 0.8f, 0.8f, 1 };
 
-	//Luna
-	/*glDisable(GL_LIGHTING);
-	glDisable(GL_LIGHT0);
-		glPushMatrix();
-
-		glMateriali(GL_FRONT, GL_SHININESS, 32);
-		glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
-
-		glTranslatef(45,20,-80);
-		glColor3f(0.8f,0.8f,0.7f);
-		glutSolidSphere(5,50,50);
-		glPopMatrix();
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHTING);
-	*/
-	/*glPushMatrix();
-	glTranslatef(45,20,-80);
-	glEnable(GL_BLEND);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_LIGHT0);
-	glDisable(GL_LIGHTING);
-	glColor3f(1,1,1);
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 14);
-
-	glBlendFunc(GL_DST_COLOR,GL_ZERO);
-
-	//Applico la maschera per la trasparenza
-	float radius=10;
-	glBegin(GL_QUADS);
-		glTexCoord2f(0,0);
-		glVertex3f(-radius,radius,0);
-		glTexCoord2f(1,0);
-		glVertex3f(radius,radius,0);
-		glTexCoord2f(1,1);
-		glVertex3f(radius,-radius,0);
-		glTexCoord2f(0,1);
-		glVertex3f(-radius,-radius,0);
-	glEnd();
-
-	// Disegno la sprite
-	glTranslatef(0,0,0.1f);
-	glBindTexture(GL_TEXTURE_2D, 15);
-	glBlendFunc(GL_ONE,GL_ONE);
-
-	glBegin(GL_QUADS);
-	glTexCoord2f(0,0);
-	glVertex3f(-radius,radius,0);
-	glTexCoord2f(1,0);
-	glVertex3f(radius,radius,0);
-	glTexCoord2f(1,1);
-	glVertex3f(radius,-radius,0);
-	glTexCoord2f(0,1);
-	glVertex3f(-radius,-radius,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHTING);
-	glPopMatrix();
-	*/
 
 	//cannone
 	clearMaterial();
@@ -740,19 +674,35 @@ void DrawScene()
 
 	//Luna
 	glPushMatrix();
-	glTranslatef(300,250,0.1f);
-	glEnable(GL_BLEND);
+		glTranslatef(300,250,0.1f);
+		glEnable(GL_BLEND);
 
-	glColor3f(1,1,1);
+		glColor3f(1,1,1);
 
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 14);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 14);
 
-	glBlendFunc(GL_DST_COLOR,GL_ZERO);
+		glBlendFunc(GL_DST_COLOR,GL_ZERO);
 
-	//Applico la maschera per la trasparenza
-	float radius=50;
-	glBegin(GL_QUADS);
+		//Applico la maschera per la trasparenza
+		register float radius=50;
+		glBegin(GL_QUADS);
+			glTexCoord2f(0,0);
+			glVertex3f(-radius,radius,0);
+			glTexCoord2f(1,0);
+			glVertex3f(radius,radius,0);
+			glTexCoord2f(1,1);
+			glVertex3f(radius,-radius,0);
+			glTexCoord2f(0,1);
+			glVertex3f(-radius,-radius,0);
+		glEnd();
+
+		// Disegno la sprite
+		glTranslatef(0,0,0.1f);
+		glBindTexture(GL_TEXTURE_2D, 15);
+		glBlendFunc(GL_ONE,GL_ONE);
+
+		glBegin(GL_QUADS);
 		glTexCoord2f(0,0);
 		glVertex3f(-radius,radius,0);
 		glTexCoord2f(1,0);
@@ -761,25 +711,9 @@ void DrawScene()
 		glVertex3f(radius,-radius,0);
 		glTexCoord2f(0,1);
 		glVertex3f(-radius,-radius,0);
-	glEnd();
+		glEnd();
 
-	// Disegno la sprite
-	glTranslatef(0,0,0.1f);
-	glBindTexture(GL_TEXTURE_2D, 15);
-	glBlendFunc(GL_ONE,GL_ONE);
-
-	glBegin(GL_QUADS);
-	glTexCoord2f(0,0);
-	glVertex3f(-radius,radius,0);
-	glTexCoord2f(1,0);
-	glVertex3f(radius,radius,0);
-	glTexCoord2f(1,1);
-	glVertex3f(radius,-radius,0);
-	glTexCoord2f(0,1);
-	glVertex3f(-radius,-radius,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
+		glDisable(GL_BLEND);
 	glPopMatrix();
 
 	glEnable(GL_DEPTH_TEST);
@@ -843,30 +777,32 @@ void processTimedOperation(int i=0){
 	glutTimerFunc(30,processTimedOperation,1);
 }
 
+
+/*############# CALLBACK gestione movimenti del mouse #################*/
 void processMouseActiveMotion(int x, int y){
 	//Muove il cannone
-	cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
-
+	//cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
 	register float halfScreen = 640.0f;
 	register float myVal = ((x-halfScreen)/halfScreen);
 	register float angle = acos(myVal)*180.0f/PI - 90.0f;
+	cout << "ANGLE = " << angle << endl;
 
-	cout << "Mouse acos in gradi = " << angle << endl;
-
+	if(angle>28.0f)angle=28.0f;
+	else if(angle <-28.0f)angle=-28.0f;
+	//else if(angle >-75.0f)angle=-75.0f;
+	//cout << "Mouse acos in gradi = " << angle << endl;
 	myCannon->setrZ(angle);
-
 
 
 	halfScreen = 400.0f;
 	myVal = ((y-halfScreen)/halfScreen);
 	angle = acos(myVal)*180.0f/PI - 180.0f;
-	//angle=min(-30.0f,angle);
-	//angle=angle /100*80;
 
-	cout << "Mouse acos in gradi = " << angle << endl;
+	if(angle<-112.0f)angle=-112.0f;
+	else if(angle >-75.0f)angle=-75.0f;
 
+	//cout << "Mouse acos in gradi = " << angle << endl;
 	myCannon->setrX(angle);
-
 }
 
 int main(int argc, char **argv)
