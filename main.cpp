@@ -23,9 +23,9 @@
 #include "Explosion.h"
 
 
-void CambiaDim(int, int);
-void DrawScene();
-void TastoPremuto(unsigned char, int, int);
+//void CambiaDim(int, int);
+//void DrawScene();
+//void TastoPremuto(unsigned char, int, int);
 
 using namespace std;
 
@@ -70,9 +70,6 @@ float pNear=0.5;
 void TastoPremuto(unsigned char t, int, int)
 {
 
-	//Leggo eventuali CTRL,ALT..
-
-
 	if(t == 'm') ossZ -= 0.1f;
 	if(t == 'n') ossZ += 0.1f;
 	if(t == '.') ossX -= 0.1f;
@@ -92,9 +89,10 @@ void TastoPremuto(unsigned char t, int, int)
     if(t == '2') pNear *= 0.9f;
 	 */
 
-
+	//Esci dal gioco
 	if(t == 27) exit(0);
 
+	//Toggle del mirino
 	if(t == 'x') myCannon->swapTargetingEnabled();
 	/*	if(t == 'q'){
 		if(glutGetModifiers() == GLUT_ACTIVE_CTRL)
@@ -111,7 +109,7 @@ void clearMaterial(){
 	GLfloat direttiva[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
 	//GLfloat brillante[4] = { 0.0f, 0.0f,0.0f, 0.0f };
 	GLfloat brillante[4] = { 1.0f, 1.0f,1.0f, 1.0f };
-	//glMateriali(GL_FRONT, GL_SHININESS, 32);
+	glMateriali(GL_FRONT, GL_SHININESS, 32);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
@@ -139,6 +137,7 @@ void printStrokeString(void* font, char* s)
    }
 }
 
+//Metodo che aggiorna il punteggio
 void updateScore(int delta){
 	score += delta;
 	sprintf(stringscore,"%d",score); // string result '65' is stored in char array cVal
@@ -185,7 +184,7 @@ void Progress(){
 				distanceBC = sqrt( pow(myAmmo.at(i)->getOldX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getOldY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getOldZ() - myBombs.at(j)->getZ(),2) );
 				semi = (distanceAB+distanceAC+distanceBC)/2.0f;
 				h = pow( (2*semi*(semi-distanceAB)*(semi-distanceAC)*(semi-distanceBC))/distanceAB , 2);
-				//Lavoro volutamente coi quadrati, per risparmiare un controllo sotto e la sqrt nel caso base
+				//Lavoro volutamente coi quadrati, per risparmiare un controllo sotto e per evitare la sqrt nel caso base
 				cout << "Coll " << endl;
 			}
 			else{//Metodo della distanza semplice
@@ -233,6 +232,7 @@ void Progress(){
 						k=myCitadel.size();
 						i--;
 						die=true;
+						updateScore(-5);
 				}
 			}
 		}
@@ -245,7 +245,7 @@ void Progress(){
 	}
 
 
-	//Collision bombe->edifici
+	/* Collision bombe->edifici */
 	for(register unsigned int i=0;i<myBombs.size();i++){
 		myBombs.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
 		if(bool coll=myBombs.at(i)->checkCollision() || myBombs.at(i)->getY() <= 0){
@@ -264,7 +264,7 @@ void Progress(){
 		}
 	}
 
-	//Gestione esplosioni
+	/* Gestione esplosioni */
 	for(register unsigned int i=0;i<myExplosions.size();i++){
 		myExplosions.at(i)->processExplosion(glutGet(GLUT_ELAPSED_TIME)-delta_t);
 		if(myExplosions.at(i)->isFinished()){
@@ -275,8 +275,7 @@ void Progress(){
 
 	}
 
-
-	/* Nuove bombe su edifici casuali */
+	/* Lancio di nuove bombe su edifici casuali */
 	register unsigned int newbombs = rand() % 100;
 	if(myBombs.size()<=5 && newbombs >=95){
 		register int quarter = rand()%6;
@@ -336,9 +335,9 @@ void DrawScene()
 
 
 	//Variabili per definire materiali
-	GLfloat ambiente[4] = { 0.8f, 0.8f, 0.6f, 1 };
-	GLfloat direttiva[4] = { 0.7f, 0.7f, 0.7f, 1 };
-	GLfloat brillante[4] = { 0.8f, 0.8f, 0.8f, 1 };
+	//GLfloat ambiente[4] = { 0.8f, 0.8f, 0.6f, 1 };
+	//GLfloat direttiva[4] = { 0.7f, 0.7f, 0.7f, 1 };
+	//GLfloat brillante[4] = { 0.8f, 0.8f, 0.8f, 1 };
 
 
 	//cannone
@@ -979,7 +978,6 @@ int main(int argc, char **argv)
 
 	//Carica le texture
 	{
-			int randFloor = rand()%3;
 			GLubyte Texture1[256 * 256 * 3];
 			FILE *fHan = fopen("img/metal4.raw", "rb");
 			if(fHan == NULL) return(0);
@@ -1018,7 +1016,7 @@ int main(int argc, char **argv)
 			fclose(fHan);
 
 			GLubyte Texture7[256 * 256 * 3];
-			fHan = fopen("img/wall3.raw", "rb");
+			fHan = fopen("img/wall8.raw", "rb");
 			if(fHan == NULL) return(0);
 			fread(Texture7, 256 * 256, 3, fHan);
 			fclose(fHan);
