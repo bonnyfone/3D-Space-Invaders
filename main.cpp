@@ -318,7 +318,7 @@ void DrawScene()
 	GLfloat brillante[4] = { 0.8f, 0.8f, 0.8f, 1 };
 
 	//Luna
-	glDisable(GL_LIGHTING);
+	/*glDisable(GL_LIGHTING);
 	glDisable(GL_LIGHT0);
 		glPushMatrix();
 
@@ -333,6 +333,55 @@ void DrawScene()
 		glPopMatrix();
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
+	*/
+	/*glPushMatrix();
+	glTranslatef(45,20,-80);
+	glEnable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_LIGHT0);
+	glDisable(GL_LIGHTING);
+	glColor3f(1,1,1);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 14);
+
+	glBlendFunc(GL_DST_COLOR,GL_ZERO);
+
+	//Applico la maschera per la trasparenza
+	float radius=10;
+	glBegin(GL_QUADS);
+		glTexCoord2f(0,0);
+		glVertex3f(-radius,radius,0);
+		glTexCoord2f(1,0);
+		glVertex3f(radius,radius,0);
+		glTexCoord2f(1,1);
+		glVertex3f(radius,-radius,0);
+		glTexCoord2f(0,1);
+		glVertex3f(-radius,-radius,0);
+	glEnd();
+
+	// Disegno la sprite
+	glTranslatef(0,0,0.1f);
+	glBindTexture(GL_TEXTURE_2D, 15);
+	glBlendFunc(GL_ONE,GL_ONE);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0);
+	glVertex3f(-radius,radius,0);
+	glTexCoord2f(1,0);
+	glVertex3f(radius,radius,0);
+	glTexCoord2f(1,1);
+	glVertex3f(radius,-radius,0);
+	glTexCoord2f(0,1);
+	glVertex3f(-radius,-radius,0);
+	glEnd();
+
+	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHTING);
+	glPopMatrix();
+	*/
 
 	//cannone
 	clearMaterial();
@@ -689,11 +738,54 @@ void DrawScene()
 
 	glPopMatrix();
 
+	//Luna
+	glPushMatrix();
+	glTranslatef(300,250,0.1f);
+	glEnable(GL_BLEND);
+
+	glColor3f(1,1,1);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 14);
+
+	glBlendFunc(GL_DST_COLOR,GL_ZERO);
+
+	//Applico la maschera per la trasparenza
+	float radius=50;
+	glBegin(GL_QUADS);
+		glTexCoord2f(0,0);
+		glVertex3f(-radius,radius,0);
+		glTexCoord2f(1,0);
+		glVertex3f(radius,radius,0);
+		glTexCoord2f(1,1);
+		glVertex3f(radius,-radius,0);
+		glTexCoord2f(0,1);
+		glVertex3f(-radius,-radius,0);
+	glEnd();
+
+	// Disegno la sprite
+	glTranslatef(0,0,0.1f);
+	glBindTexture(GL_TEXTURE_2D, 15);
+	glBlendFunc(GL_ONE,GL_ONE);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0);
+	glVertex3f(-radius,radius,0);
+	glTexCoord2f(1,0);
+	glVertex3f(radius,radius,0);
+	glTexCoord2f(1,1);
+	glVertex3f(radius,-radius,0);
+	glTexCoord2f(0,1);
+	glVertex3f(-radius,-radius,0);
+	glEnd();
+
+	glDisable(GL_BLEND);
+	glPopMatrix();
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
-	//glPopMatrix();
 
 	glutSwapBuffers();
 }
@@ -1007,6 +1099,17 @@ int main(int argc, char **argv)
 			fread(Texture13, 256 * 256, 3, fHan);
 			fclose(fHan);
 
+			GLubyte Texture14[256 * 256 * 3];
+			fHan = fopen("img/moonmask.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture14, 256 * 256, 3, fHan);
+			fclose(fHan);
+
+			GLubyte Texture15[256 * 256 * 3];
+			fHan = fopen("img/moon.raw", "rb");
+			if(fHan == NULL) return(0);
+			fread(Texture15, 256 * 256, 3, fHan);
+			fclose(fHan);
 
 			Textures.push_back(Texture1);
 			Textures.push_back(Texture2);
@@ -1021,6 +1124,8 @@ int main(int argc, char **argv)
 			Textures.push_back(Texture11);
 			Textures.push_back(Texture12);
 			Textures.push_back(Texture13);
+			Textures.push_back(Texture14);
+			Textures.push_back(Texture15);
 	}
 
 	for(unsigned int i=0; i<Textures.size(); i++){
