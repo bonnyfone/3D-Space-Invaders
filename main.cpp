@@ -31,6 +31,10 @@ using namespace std;
 
 
 /* ################################## GLOBALI ################################## */
+bool gamesStarted;
+bool gamesEnded;
+bool helpShowed;
+
 float recoil;
 float recoilTime;
 float life;
@@ -39,6 +43,7 @@ int score;
 char stringscore[32];
 float gametime;
 float timecoeff;
+
 vector<Sector*> myCitadel;
 vector<Bomb*> myBombs;
 vector<Projectile*> myAmmo;
@@ -69,7 +74,7 @@ float pNear=0.5;
 //Linko le funzioni..
 void TastoPremuto(unsigned char t, int, int)
 {
-
+	/*
 	if(t == 'm') ossZ -= 0.1f;
 	if(t == 'n') ossZ += 0.1f;
 	if(t == '.') ossX -= 0.1f;
@@ -82,6 +87,7 @@ void TastoPremuto(unsigned char t, int, int)
 
 	if(t == 'g') ossB -= 2;
 	if(t == 'h') ossB += 2;
+	*/
 
 
 	//cambiare angolo focale (piano near)
@@ -92,8 +98,20 @@ void TastoPremuto(unsigned char t, int, int)
 	//Esci dal gioco
 	if(t == 27) exit(0);
 
+	//inizia a giocare
+	else if(t == 's' && !gamesStarted){
+		gamesStarted=true;
+		helpShowed=false;
+		myCannon->swapTargetingEnabled();
+	}
+
+	//toggle help
+	else if(t == 'h'){
+		helpShowed = ! helpShowed;
+	}
+
 	//Toggle del mirino
-	if(t == 'x') myCannon->swapTargetingEnabled();
+	else if(t == 'x') myCannon->swapTargetingEnabled();
 	/*	if(t == 'q'){
 		if(glutGetModifiers() == GLUT_ACTIVE_CTRL)
 		exit(0);
@@ -144,6 +162,105 @@ void updateScore(int delta){
 }
 
 
+//Disegna il menu di avvio
+void drawMenu(){
+
+	glPushMatrix();
+	glTranslatef(-75,245,0);
+	glColor3f(0.1f,0.9f,0.1f);
+	glRasterPos2f(0,0);
+	printBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,"Defense Of The Citadel");
+
+	glTranslatef(30,-50,0);
+	glRasterPos2f(0,0);
+	printBitmapString(GLUT_BITMAP_HELVETICA_18,"Start game (s)");
+
+	glTranslatef(0,-20,0);
+	glRasterPos2f(0,0);
+	printBitmapString(GLUT_BITMAP_HELVETICA_18,"Help me (h)   ");
+
+	glTranslatef(0,-20,0);
+	glRasterPos2f(0,0);
+	printBitmapString(GLUT_BITMAP_HELVETICA_18,"Exit game (Esc)");
+
+	glPopMatrix();
+
+
+}
+
+//Disegna gli aiuti contestuali
+void drawHelp(){
+
+	glPushMatrix();
+		glTranslatef(20,-70,0);
+		glColor3f(0.1f,0.9f,0.9f);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"Move the cannon by MOVING your mouse.");
+
+		glBegin(GL_LINES);
+			glVertex2f(-2,-5);
+			glVertex2f(-20,-60);
+		glEnd();
+
+		glTranslatef(0,-20,0);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"Use LEFT mouse click to shoot.");
+
+		glTranslatef(0,-20,0);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"Press 'x' to toggle the targeting system.");
+	glPopMatrix();
+
+
+	glPushMatrix();
+		glTranslatef(-320,-180,0);
+		glColor3f(0.1f,0.9f,0.9f);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"Defend the citadel until time expires to win.");
+
+		glBegin(GL_LINES);
+			glVertex2f(15,-25);
+			glVertex2f(-20,-50);
+		glEnd();
+
+		glTranslatef(0,-20,0);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"Remember : don't open fire against buildings :)");
+	glPopMatrix();
+
+
+	glPushMatrix();
+		glTranslatef(-320,180,0);
+		glColor3f(0.1f,0.9f,0.9f);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"Destroy the bombs dropped from the sky");
+		glRasterPos2f(0,-20);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"to defend the citadel and get score.");
+
+		glBegin(GL_LINES);
+			glVertex2f(55,15);
+			glVertex2f(80,50);
+		glEnd();
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(230,-180,0);
+		glColor3f(0.1f,0.9f,0.9f);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"Watch at the cannon-monitor ");
+		glRasterPos2f(0,-20);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"to adjust your shooting!");
+
+		glBegin(GL_LINES);
+			glVertex2f(55,-25);
+			glVertex2f(25,-45);
+		glEnd();
+	glPopMatrix();
+
+	glPopMatrix();
+
+}
+
 void CambiaDim(int w, int h)
 {
 	glViewport(0,0,w,h);
@@ -152,6 +269,7 @@ void CambiaDim(int w, int h)
 
 /*#################### CALLBACK progress del gioco #####################*/
 void Progress(){
+if(!gamesStarted)return;
 
 	//Life check
 	life=0;
@@ -361,13 +479,13 @@ void DrawScene()
 
 				if(c%2 == 0)glTexCoord2f(0,0);
 				else glTexCoord2f(0,1);
-				//glNormal3f(0,0.1f,0);
+				//glNormal3f(0,1.0f,0);
 				glVertex3f(a,0,z);
 
 				if(c%2 == 0)glTexCoord2f(1,0);
 				else glTexCoord2f(1,1);
 
-				//glNormal3f(0,0.1f,0);
+				//glNormal3f(0,1.0f,0);
 				glVertex3f(a+delta,0,z);
 		}
 		glEnd();
@@ -558,6 +676,12 @@ void DrawScene()
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHT0);
 	glDisable(GL_LIGHTING);
+
+	//Menu
+	if(!gamesStarted) drawMenu();
+
+	//Help
+	if(helpShowed) drawHelp();
 
 	//Vita
 	posX=-360.0f;
@@ -750,6 +874,7 @@ void DrawScene()
 
 //CALLBACK gestione azioni del mouse
 void processMouseAction (int button, int state, int x, int y){
+	if(!gamesStarted)return;
 	//	buttons[button] = state;
 
 	if(recoil >=recoilTime && button==0 && state ==0){//singolo mouseClickDown
@@ -788,6 +913,7 @@ void processMouseAction (int button, int state, int x, int y){
 
 /*############# CALLBACK gestione eventi strettamente temporali #################*/
 void processTimedOperation(int i=0){
+
 	gametime -= 0.1f;
 	myCannon->targetingAnimation();
 
@@ -803,6 +929,8 @@ void processTimedOperation(int i=0){
 
 /*############# CALLBACK gestione movimenti del mouse #################*/
 void processMouseActiveMotion(int x, int y){
+	if(!gamesStarted)return;
+
 	//Muove il cannone
 	//cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
 	register float halfScreen = 640.0f;
@@ -906,6 +1034,10 @@ int main(int argc, char **argv)
 	int xIterator = startX;
 	int yIterator = citysize;
 
+	//Globals
+	gamesStarted=false;
+	gamesEnded=false;
+	helpShowed=false;
 	life=0;
 	score=0;
 	updateScore(0);
