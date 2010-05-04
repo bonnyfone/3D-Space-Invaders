@@ -2,7 +2,7 @@
  * main.cpp
  * Difesa della Cittadella
  *  Created on: 06/apr/2010
- *      Author: ziby
+ *    Author: Stefano Bonetta
  */
 
 #include <stdio.h>
@@ -14,6 +14,7 @@
 #include <vector>
 #include <string.h>
 #include <sstream>
+
 #include "Obj.h"
 #include "Sector.h"
 #include "Building.h"
@@ -34,6 +35,8 @@ using namespace std;
 bool gamesStarted;
 bool gamesEnded;
 bool helpShowed;
+bool paused;
+bool antialiasing;
 
 float recoil;
 float recoilTime;
@@ -71,6 +74,29 @@ float pNear=0.5;
 /*############################################################################*/
 
 
+
+void swapAntialias(){
+	antialiasing=!antialiasing;
+	if(antialiasing){
+		//Antialiasing
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_POINT_SMOOTH);
+		glEnable(GL_LINE_SMOOTH);
+		glEnable(GL_POLYGON_SMOOTH);
+
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+	}
+	else {
+		glDisable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_POINT_SMOOTH);
+		glDisable(GL_LINE_SMOOTH);
+		glDisable(GL_POLYGON_SMOOTH);
+	}
+}
 //Linko le funzioni..
 void TastoPremuto(unsigned char t, int, int)
 {
@@ -108,6 +134,16 @@ void TastoPremuto(unsigned char t, int, int)
 	//toggle help
 	else if(t == 'h'){
 		helpShowed = ! helpShowed;
+	}
+
+	//toggle pause
+	else if(t == 'p'){
+		paused = !paused;
+	}
+
+	//toggle antialias
+	else if(t == 'a'){
+		swapAntialias();
 	}
 
 	//Toggle del mirino
@@ -174,6 +210,10 @@ void drawMenu(){
 	glTranslatef(30,-50,0);
 	glRasterPos2f(0,0);
 	printBitmapString(GLUT_BITMAP_HELVETICA_18,"Start game (s)");
+
+	glTranslatef(0,-20,0);
+	glRasterPos2f(0,0);
+	printBitmapString(GLUT_BITMAP_HELVETICA_18,"Pause (p)    ");
 
 	glTranslatef(0,-20,0);
 	glRasterPos2f(0,0);
@@ -257,8 +297,18 @@ void drawHelp(){
 		glEnd();
 	glPopMatrix();
 
-	glPopMatrix();
+}
 
+//disegna "pause"
+void drawPause(){
+	glPushMatrix();
+		glTranslatef(-30,10,0);
+		glColor3f(0.1f,0.9f,0.1f);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,"PAUSED");
+		glRasterPos2f(-20,-20);
+		printBitmapString(GLUT_BITMAP_HELVETICA_18,"(press 'p' to continue)");
+	glPopMatrix();
 }
 
 void CambiaDim(int w, int h)
@@ -270,6 +320,10 @@ void CambiaDim(int w, int h)
 /*#################### CALLBACK progress del gioco #####################*/
 void Progress(){
 if(!gamesStarted)return;
+else if(paused){
+	delta_t=glutGet(GLUT_ELAPSED_TIME);
+	return;
+}
 
 	//Life check
 	life=0;
@@ -683,6 +737,9 @@ void DrawScene()
 	//Help
 	if(helpShowed) drawHelp();
 
+	//Pause
+	if(paused) drawPause();
+
 	//Vita
 	posX=-360.0f;
 	size=80.0f;
@@ -822,6 +879,7 @@ void DrawScene()
 	//Luna
 	glPushMatrix();
 		glTranslatef(300,250,0.1f);
+
 		glEnable(GL_BLEND);
 
 		glColor3f(1,1,1);
@@ -874,7 +932,7 @@ void DrawScene()
 
 //CALLBACK gestione azioni del mouse
 void processMouseAction (int button, int state, int x, int y){
-	if(!gamesStarted)return;
+	if(!gamesStarted || paused)return;
 	//	buttons[button] = state;
 
 	if(recoil >=recoilTime && button==0 && state ==0){//singolo mouseClickDown
@@ -913,16 +971,16 @@ void processMouseAction (int button, int state, int x, int y){
 
 /*############# CALLBACK gestione eventi strettamente temporali #################*/
 void processTimedOperation(int i=0){
+	if(!paused){
+		gametime -= 0.1f;
+		myCannon->targetingAnimation();
 
-	gametime -= 0.1f;
-	myCannon->targetingAnimation();
-
-	//Rinculo del cannone
-	if(recoil < recoilTime){
-		myCannon->setRecoil(-(1-recoil/recoilTime));
-		recoil += 1.0f;
+		//Rinculo del cannone
+		if(recoil < recoilTime){
+			myCannon->setRecoil(-(1-recoil/recoilTime));
+			recoil += 1.0f;
+		}
 	}
-
 	glutTimerFunc(30,processTimedOperation,1);
 }
 
@@ -974,25 +1032,24 @@ int main(int argc, char **argv)
 	glutGameModeString("1280x800:16");
 	glutEnterGameMode();
 
+	//Callback binding
 	glutReshapeFunc(CambiaDim);
 	glutDisplayFunc(DrawScene);
 	glutKeyboardFunc(TastoPremuto);
 
-	//Cattura movimenti mouse
-
+	//(Cattura movimenti mouse)
 	glutMouseFunc(processMouseAction);
 	glutMotionFunc(processMouseActiveMotion);
 	glutPassiveMotionFunc(processMouseActiveMotion);
 
-
-	/* Zbuffer ed smartdrawing */
+	// Zbuffer ed smartdrawing
 	glEnable(GL_DEPTH_TEST); //abilita zbuffer
 	glEnable(GL_CULL_FACE);
 
+	//Lighting
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
-	//glClearColor(0.0f,0.0f,0.0f,1.0f);
-    //glDepthMask(GL_TRUE);
+
 
 
 	GLfloat black[4] = { 0.0f, 0.0f, 0.0f, 1 };
@@ -1038,6 +1095,8 @@ int main(int argc, char **argv)
 	gamesStarted=false;
 	gamesEnded=false;
 	helpShowed=false;
+	paused=false;
+	antialiasing=false;
 	life=0;
 	score=0;
 	updateScore(0);
