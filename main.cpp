@@ -378,6 +378,8 @@ void Progress(){
 			}
 		}
 		//->with buildings
+		register int toDestroy=-1;
+		register float nearest=-100;
 		for(register unsigned int k=0;k<myCitadel.size()&& !die;k++){
 			Sector* checkSect = myCitadel.at(k);
 			for(register unsigned int m=0; m < checkSect->getBuildings().size(); m++){
@@ -389,23 +391,30 @@ void Progress(){
 											  pow(myAmmo.at(i)->getZ()-checkSect->getBuildings().at(m)->getZ() ,2));
 
 				if(effectiveDistance <= impactDistance && myAmmo.at(i)->getY() <= checkSect->getBuildings().at(m)->getL()*2){
-						checkSect->getBuildings().at(m)->setL(checkSect->getBuildings().at(m)->getL()-0.5f);
-						myExplosions.push_back(new Explosion(myAmmo.at(i)->getX(),myAmmo.at(i)->getY()+myAmmo.at(i)->getDimY(),myAmmo.at(i)->getZ()));
-						delete myAmmo.at(i);
-						myAmmo.erase(myAmmo.begin()+i);
-
-						if(checkSect->getBuildings().at(m)->getL() <= 0.0f){
-							cout << "checkCollisione,dentro if" << endl;
-							checkSect->removeBuilding(checkSect->getBuildings().at(m));
-						}
-						//others.at(i)->addRefer();
-						m=checkSect->getBuildings().size();
-						k=myCitadel.size();
-						i--;
-						die=true;
-						updateScore(-5);
-				}
+					if(checkSect->getBuildings().at(m)->getZ() + checkSect->getBuildings().at(m)->getR() >= nearest){
+						nearest = checkSect->getBuildings().at(m)->getZ() + checkSect->getBuildings().at(m)->getR();
+						toDestroy=m;
+				}}
 			}
+
+			if(toDestroy != -1){
+				checkSect->getBuildings().at(toDestroy)->setL(checkSect->getBuildings().at(toDestroy)->getL()-0.5f);
+				myExplosions.push_back(new Explosion(myAmmo.at(i)->getX(),myAmmo.at(i)->getY()+myAmmo.at(i)->getDimY(),checkSect->getBuildings().at(toDestroy)->getZ() + checkSect->getBuildings().at(toDestroy)->getR()));
+				delete myAmmo.at(i);
+				myAmmo.erase(myAmmo.begin()+i);
+
+				if(checkSect->getBuildings().at(toDestroy)->getL() <= 0.0f){
+					cout << "checkCollisione,dentro if" << endl;
+					checkSect->removeBuilding(checkSect->getBuildings().at(toDestroy));
+				}
+				//others.at(i)->addRefer();
+				//m=checkSect->getBuildings().size();
+				k=myCitadel.size();
+				i--;
+				die=true;
+				updateScore(-5);
+			}
+
 		}
 
 		if(!die && (myAmmo.at(i)->getZ() <= -110 || myAmmo.at(i)->getY()<=0)){
