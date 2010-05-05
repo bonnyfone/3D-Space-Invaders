@@ -161,7 +161,6 @@ void clearMaterial(){
 	//Variabili per definire materiali
 	GLfloat ambiente[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat direttiva[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
-	//GLfloat brillante[4] = { 0.0f, 0.0f,0.0f, 0.0f };
 	GLfloat brillante[4] = { 1.0f, 1.0f,1.0f, 1.0f };
 	glMateriali(GL_FRONT, GL_SHININESS, 32);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
@@ -197,6 +196,37 @@ void updateScore(int delta){
 	sprintf(stringscore,"%d",score); // string result '65' is stored in char array cVal
 }
 
+//Display LOSE
+void youLose(){
+	gamesEnded = true;
+
+	glPushMatrix();
+		glTranslatef(-35,230,0);
+		glColor3f(0.9f,0.1f,0.1f);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,"YOU LOSE");
+	glPopMatrix();
+
+}
+
+//Display WIN
+void youWin(){
+	gamesEnded = true;
+
+	glPushMatrix();
+		glTranslatef(-25,240,0);
+		glColor3f(0.1f,0.9f,0.1f);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,"YOU WIN");
+
+		glTranslatef(-5,-40,0);
+		glRasterPos2f(0,0);
+		printBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,"Total score");
+		glRasterPos2f(20,-20);
+		printBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,stringscore);
+	glPopMatrix();
+
+}
 
 //Disegna il menu di avvio
 void drawMenu(){
@@ -224,8 +254,6 @@ void drawMenu(){
 	printBitmapString(GLUT_BITMAP_HELVETICA_18,"Exit game (Esc)");
 
 	glPopMatrix();
-
-
 }
 
 //Disegna gli aiuti contestuali
@@ -250,7 +278,6 @@ void drawHelp(){
 		glRasterPos2f(0,0);
 		printBitmapString(GLUT_BITMAP_HELVETICA_18,"Press 'x' to toggle the targeting system.");
 	glPopMatrix();
-
 
 	glPushMatrix();
 		glTranslatef(-320,-180,0);
@@ -320,7 +347,7 @@ void CambiaDim(int w, int h)
 /*#################### CALLBACK progress del gioco #####################*/
 void Progress(){
 	//Check: gioco avviato? gioco in pausa?
-	if(!gamesStarted)return;
+	if(!gamesStarted || gamesEnded)return;
 	else if(paused){
 		delta_t=glutGet(GLUT_ELAPSED_TIME);
 		return;
@@ -331,7 +358,7 @@ void Progress(){
 	for(register unsigned int i=0; i<myCitadel.size();i++){
 		life+=myCitadel.at(i)->getBuildingsLife();
 	}
-	if(life==0){/* GAME OVER*/}
+	if(life==0){gamesEnded=true;/* GAME OVER*/}
 
 
 	/*--- Ammo collision ---*/
@@ -515,6 +542,9 @@ void DrawScene()
 
 	//Terreno
 	clearMaterial();
+	GLfloat scuro[4] = { 0.0f, 0.0f,0.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, scuro);
+
 	for(a=-80; a<80; a+=delta)
 	{
 		glBegin(GL_QUAD_STRIP);
@@ -522,36 +552,42 @@ void DrawScene()
 
 				if(c%2 == 0)glTexCoord2f(0,0);
 				else glTexCoord2f(0,1);
-				//glNormal3f(0,1.0f,0);
+				glNormal3f(0,1.0f,0);
 				glVertex3f(a,0,z);
 
 				if(c%2 == 0)glTexCoord2f(1,0);
 				else glTexCoord2f(1,1);
 
-				//glNormal3f(0,1.0f,0);
+				glNormal3f(0,1.0f,0);
 				glVertex3f(a+delta,0,z);
 		}
 		glEnd();
 	}
 
 	//Cielo
+	glDisable(GL_LIGHTING);
 	glBindTexture(GL_TEXTURE_2D, 5);
 	glBegin(GL_QUADS);
 	 for(int i=0;i<3;i++){
+			glNormal3f(0,0,0.0f);
 			glTexCoord2f(0,1);
 			glVertex3f(-120+i*80,0,-100);
 
+			glNormal3f(0,0,0.0f);
 			glTexCoord2f(1,1);
 			glVertex3f(-120+(i+1)*80,0,-100);
 
+			glNormal3f(0,0,0.0f);
 			glTexCoord2f(1,0);
 			glVertex3f(-120+(i+1)*80,40,-100);
 
+			glNormal3f(0,0,0.0f);
 			glTexCoord2f(0,0);
 			glVertex3f(-120+i*80,40,-100);
 	 }
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_LIGHTING);
 
 
 	//Disegno settori
@@ -567,6 +603,13 @@ void DrawScene()
 	}
 
 	//Disegna strade
+	GLfloat ambiente[4] =  { 0.2f, 0.2f, 0.2f, 1.0f };
+	GLfloat direttiva[4] =  { 0.2f,0.2f, 0.2f, 1.0f };
+	GLfloat brillante[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
+
 	int halfSect = myCitadel.size()/2;
 
 	int roadA = 0;
@@ -720,9 +763,14 @@ void DrawScene()
 	glDisable(GL_LIGHT0);
 	glDisable(GL_LIGHTING);
 
+
 	//Menu
 	if(!gamesStarted) drawMenu();
 
+	if(gamesEnded){
+		if(life <=0)youLose();
+		else youWin();
+	}
 	//Help
 	if(helpShowed) drawHelp();
 
@@ -960,7 +1008,9 @@ void processMouseAction (int button, int state, int x, int y){
 
 /*############# CALLBACK gestione eventi strettamente temporali #################*/
 void processTimedOperation(int i=0){
-	if(!paused){
+	if(gametime<=0.0f)gamesEnded=true;
+	if(!paused && !gamesEnded){
+		//gametime -= 10.1f;
 		gametime -= 0.1f;
 		myCannon->targetingAnimation();
 

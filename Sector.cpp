@@ -36,28 +36,46 @@
 		glBindTexture(GL_TEXTURE_2D, 2);
 		glBegin(GL_QUADS);
 
-			//glColor3f(r, g, b);
+		GLfloat ambiente[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
+		GLfloat direttiva[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
+		GLfloat brillante[4] = { 0.0f, 0.0f,0.0f, 1.0f };
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
+
 
 			if(cull==0){//antiorario
+				glNormal3f(0,1,0);
 				glTexCoord2f(0, 0);
 				glVertex3f(0, 0.04, 0);
 
+				glNormal3f(0,1,0);
 				glTexCoord2f(1, 0);
 				glVertex3f(getDimX(), 0.04, 0);
 
+				glNormal3f(0,1,0);
 				glTexCoord2f(1, 1);
 				glVertex3f(getDimX(), 0.04, -getDimZ());
 
+				glNormal3f(0,1,0);
 				glTexCoord2f(0, 1);
 				glVertex3f(0, 0.04, -getDimZ());
 			}
 			else{//orario
+
+				glNormal3f(0,1,0);
 				glTexCoord2f(0, 0);
 				glVertex3f(0, 0.04, 0);
+
+				glNormal3f(0,1,0);
 				glTexCoord2f(0, 1);
 				glVertex3f(0, 0.04,getDimZ());
+
+				glNormal3f(0,1,0);
 				glTexCoord2f(1, 0);
 				glVertex3f(getDimX(), 0.04, getDimZ());
+
+				glNormal3f(0,1,0);
 				glTexCoord2f(1, 1);
 				glVertex3f(getDimX(), 0.04, 0);
 			}
