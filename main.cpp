@@ -544,6 +544,14 @@ void DrawScene()
 	clearMaterial();
 	GLfloat scuro[4] = { 0.0f, 0.0f,0.0f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_SPECULAR, scuro);
+	/*
+	glMateriali(GL_FRONT, GL_SHININESS, 16);
+	GLfloat ambienteB[4] =  { 0.6f,0.6f,0.6f,1.0f };
+	GLfloat direttivaB[4] ={ 0.6f,0.6f,0.6f,1.0f };
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambienteB);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttivaB);
+	*/
 
 	for(a=-80; a<80; a+=delta)
 	{
