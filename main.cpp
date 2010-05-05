@@ -1014,160 +1014,9 @@ void processMouseActiveMotion(int x, int y){
 	myCannon->setrX(angle);
 }
 
-int main(int argc, char **argv)
-{
-	glutInit(&argc, argv);		//inizializzo il sistema glut con gli stessi parametri del main
-	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+//Carica le texture
+int loadTextures(){
 
-	/* Per l'avvio in modalità finestra */
-	/*
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(550, 550);
-	glutCreateWindow("Difesa delle cittadella - Stefano Bonetta");
-	 */
-	//glutFullScreen();
-
-	/*Avvio in fullscreen*/
-	glutInitWindowSize(1280, 800);
-	glutGameModeString("1280x800:16");
-	glutEnterGameMode();
-
-	//Callback binding
-	glutReshapeFunc(CambiaDim);
-	glutDisplayFunc(DrawScene);
-	glutKeyboardFunc(TastoPremuto);
-
-	//(Cattura movimenti mouse)
-	glutMouseFunc(processMouseAction);
-	glutMotionFunc(processMouseActiveMotion);
-	glutPassiveMotionFunc(processMouseActiveMotion);
-
-	// Zbuffer ed smartdrawing
-	glEnable(GL_DEPTH_TEST); //abilita zbuffer
-	glEnable(GL_CULL_FACE);
-
-	//Lighting
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHTING);
-
-
-
-	GLfloat black[4] = { 0.0f, 0.0f, 0.0f, 1 };
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
-	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
-	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-
-
-	//Toglie il cursore
-	glutSetCursor(GLUT_CURSOR_NONE);
-
-	glutTimerFunc(50,processTimedOperation,1);
-	glutIdleFunc(Progress);
-
-	/* initialize random seed: */
-	srand ( time(NULL) );
-
-
-	/* Settori della città
-	 *
-	 * 1  2  3
-	 * 4  5  6
-	 *
-	 */
-
-	//Inizializzazioni varie
-
-	//coord x da cui partire a generare i settori
-	int startX = -15;
-	//asse centrale della citta
-	int middle = -40;
-	//estensione della città
-	int citysize = 30;
-	//max altezza settore
-	int sectorH = 25;
-
-	int sectorPerLine = 3;
-
-	int xIterator = startX;
-	int yIterator = citysize;
-
-	//Globals
-	gamesStarted=false;
-	gamesEnded=false;
-	helpShowed=false;
-	paused=false;
-	antialiasing=false;
-	life=0;
-	score=0;
-	updateScore(0);
-	gametime=0;
-	timecoeff=20.0f;
-	recoilTime=20.0f;
-	recoil=recoilTime;
-
-	/*
-	 * Costruisco i quartieri con coordinate assolute, questo mi facilita la gestione di eventi
-	 * che si verificano lungo i confini tra i vari quartieri e all'interno di essi
-     */
-	cout<< "## Building city... "<<endl;
-
-	for(int j=0; j<sectorPerLine*2; j++){
-
-		if(j==sectorPerLine){
-			xIterator = startX;
-			yIterator = citysize;
-		}
-
-		int myWidth;
-		if(j==sectorPerLine-1 || j==sectorPerLine*2 -1)
-			{
-				myWidth  =  citysize/2 - xIterator;
-				if(myWidth<=0)myWidth=7;
-			}
-		else
-			 myWidth  =  min(11,max(rand() % max((yIterator-7),1),7));
-			 //myWidth  =  min(10,max(rand() % max((yIterator-5) + 5,1),5));
-
-
-		int myHeight =  max(rand() % max((sectorH-7),1),7);
-
-		//Creo il settore
-		Sector* newSector = new Sector(xIterator,0,middle, myWidth,0,myHeight);
-
-		//Creo degli edifici nel settore (un numero casuale, scalato in base alle dimensioni del settore)
-		int limiter = (myWidth * myHeight)/10;
-		int toBuild = rand()%limiter + 1;
-
-		int meno=1;
-		if(j>2)
-			meno=-1;
-
-		for(int k=0; k < toBuild; k++){
-			int relPosX = (rand() % max((myWidth-6),1))+3 + newSector->getX();
-			int relPosZ = meno*((rand() % max((myHeight-6),1))+3) - newSector->getZ(); //<<<<<<<<<<<< DA AGGIUSTARE PER NON FAR SFORARE GLI EDIFICI
-			int myrY = rand() % 360;
-
-			Building* newBuilding = new Building(relPosX,0,-1*relPosZ, 0,myrY,0);
-			life+=newBuilding->getL();
-			newSector->addBuilding(newBuilding);
-			//myObjCitadel.push_back(*newBuilding);
-		}
-		cout<< "\n Limiter   for sector " << j << " : " << limiter << endl;
-		cout<< " Effective for sector " << j << " : " << toBuild << endl;
-
-
-		//Aggiungo settore alla cittadella
-		myCitadel.push_back(newSector);
-
-		xIterator += myWidth;
-		yIterator -= myWidth;
-	}
-	initial=life;
-	gametime=life*timecoeff;
-
-	myCannon = new Cannon();
-
-	//Carica le texture
 	{
 			GLubyte Texture1[256 * 256 * 3];
 			FILE *fHan = fopen("img/metal4.raw", "rb");
@@ -1287,13 +1136,206 @@ int main(int argc, char **argv)
 		else glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, Textures.at(i));
 	}
 
+	return 1;
+}
+
+//Inizializzazione del gioco
+void initializeGame(){
+	/* Settori della città
+	 *
+	 * 1  2  3
+	 * 4  5  6
+	 *
+	 */
+
+	//Inizializzazioni varie
+
+	//coord x da cui partire a generare i settori
+	int startX = -15;
+	//asse centrale della citta
+	int middle = -40;
+	//estensione della città
+	int citysize = 30;
+	//max altezza settore
+	int sectorH = 25;
+
+	int sectorPerLine = 3;
+
+	int xIterator = startX;
+	int yIterator = citysize;
+
+	//Globals
+	gamesStarted=false;
+	gamesEnded=false;
+	helpShowed=false;
+	paused=false;
+	antialiasing=false;
+	life=0;
+	score=0;
+	updateScore(0);
+	gametime=0;
+	timecoeff=20.0f;
+	recoilTime=20.0f;
+	recoil=recoilTime;
+
+	/*
+	 * Costruisco i quartieri con coordinate assolute, questo mi facilita la gestione di eventi
+	 * che si verificano lungo i confini tra i vari quartieri e all'interno di essi
+     */
+	cout<< "## Building city... "<<endl;
+
+	for(int j=0; j<sectorPerLine*2; j++){
+
+		if(j==sectorPerLine){
+			xIterator = startX;
+			yIterator = citysize;
+		}
+
+		int myWidth;
+		if(j==sectorPerLine-1 || j==sectorPerLine*2 -1)
+			{
+				myWidth  =  citysize/2 - xIterator;
+				if(myWidth<=0)myWidth=7;
+			}
+		else
+			 myWidth  =  min(11,max(rand() % max((yIterator-7),1),7));
+			 //myWidth  =  min(10,max(rand() % max((yIterator-5) + 5,1),5));
+
+
+		int myHeight =  max(rand() % max((sectorH-7),1),7);
+
+		//Creo il settore
+		Sector* newSector = new Sector(xIterator,0,middle, myWidth,0,myHeight);
+
+		//Creo degli edifici nel settore (un numero casuale, scalato in base alle dimensioni del settore)
+		int limiter = (myWidth * myHeight)/10;
+		int toBuild = rand()%limiter + 1;
+
+		int meno=1;
+		if(j>2)
+			meno=-1;
+
+		for(int k=0; k < toBuild; k++){
+			int relPosX = (rand() % max((myWidth-6),1))+3 + newSector->getX();
+			int relPosZ = meno*((rand() % max((myHeight-6),1))+3) - newSector->getZ(); //<<<<<<<<<<<< DA AGGIUSTARE PER NON FAR SFORARE GLI EDIFICI
+			int myrY = rand() % 360;
+
+			Building* newBuilding = new Building(relPosX,0,-1*relPosZ, 0,myrY,0);
+			life+=newBuilding->getL();
+			newSector->addBuilding(newBuilding);
+			//myObjCitadel.push_back(*newBuilding);
+		}
+		cout<< "\n Limiter   for sector " << j << " : " << limiter << endl;
+		cout<< " Effective for sector " << j << " : " << toBuild << endl;
+
+
+		//Aggiungo settore alla cittadella
+		myCitadel.push_back(newSector);
+
+		xIterator += myWidth;
+		yIterator -= myWidth;
+	}
+	initial=life;
+	gametime=life*timecoeff;
+
+	myCannon = new Cannon();
+
 	//Posizione iniziale dell'osservatore
 	ossY=13.3f;
 	ossZ=1;
 	ossX=0;
 	ossB=-17;
 
+	//Inizializzo il tempo
 	delta_t= glutGet(GLUT_ELAPSED_TIME);
+
+}
+
+
+//main
+int main(int argc, char **argv)
+{
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+
+	/* Per l'avvio in modalità finestra */
+	/*
+	glutInitWindowPosition(100, 100);
+	glutInitWindowSize(550, 550);
+	glutCreateWindow("Difesa delle cittadella - Stefano Bonetta");
+	 */
+	//glutFullScreen();
+
+
+	//glutInitWindowSize(1280, 800);
+	/*Avvio in fullscreen*/
+	char* w="1280";
+	char* h="800";
+	if(argc==3){
+		w=argv[1];
+		h=argv[2];
+		cout << "New resoltion " << w << "x" << h << endl;
+	}
+	else{
+		cout << endl << "Game started with default resolution (1280x800)." << endl <<  "Use the two first line parameters to specify a different resolution (w x h)" << endl;
+	}
+
+	//Costruisco la "gamestring" da passare alla callback
+	char myResolution[20];
+	strcpy (myResolution,"");
+	strcat(myResolution,w);
+	strcat(myResolution,"x");
+	strcat(myResolution,h);
+	strcat(myResolution,":16");
+
+	glutGameModeString(myResolution);
+	glutEnterGameMode();
+
+	/* Callback binding */
+	glutReshapeFunc(CambiaDim);
+	glutDisplayFunc(DrawScene);
+	glutKeyboardFunc(TastoPremuto);
+
+	//(Cattura movimenti mouse)
+	glutMouseFunc(processMouseAction);
+	glutMotionFunc(processMouseActiveMotion);
+	glutPassiveMotionFunc(processMouseActiveMotion);
+
+	//Timed function
+	glutTimerFunc(50,processTimedOperation,1);
+	glutIdleFunc(Progress);
+
+	/* end callback binding */
+
+	// Zbuffer ed smartdrawing
+	glEnable(GL_DEPTH_TEST); //abilita zbuffer
+	glEnable(GL_CULL_FACE);
+
+	//Lighting
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHTING);
+
+	GLfloat black[4] = { 0.0f, 0.0f, 0.0f, 1 };
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+
+	//Disabilita il cursore del mouse
+	glutSetCursor(GLUT_CURSOR_NONE);
+
+	//inizializza random seed
+	srand ( time(NULL) );
+
+	//Carica textures
+	if(!loadTextures()){
+		cout << "Problemi con il caricamento delle textures." << endl;
+		return(0);
+	}
+
+	//Inizializza il gioco
+	initializeGame();
+
+	//GLUT mainloop
 	glutMainLoop();
 	return(0);
 }
