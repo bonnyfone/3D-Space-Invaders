@@ -319,11 +319,12 @@ void CambiaDim(int w, int h)
 
 /*#################### CALLBACK progress del gioco #####################*/
 void Progress(){
-if(!gamesStarted)return;
-else if(paused){
-	delta_t=glutGet(GLUT_ELAPSED_TIME);
-	return;
-}
+	//Check: gioco avviato? gioco in pausa?
+	if(!gamesStarted)return;
+	else if(paused){
+		delta_t=glutGet(GLUT_ELAPSED_TIME);
+		return;
+	}
 
 	//Life check
 	life=0;
@@ -331,6 +332,7 @@ else if(paused){
 		life+=myCitadel.at(i)->getBuildingsLife();
 	}
 	if(life==0){/* GAME OVER*/}
+
 
 	/*--- Ammo collision ---*/
 	register float impactDistance = 1.0f;
@@ -347,17 +349,15 @@ else if(paused){
 		//->with bombs
 		distanceAB =sqrt( pow(myAmmo.at(i)->getX() -myAmmo.at(i)->getOldX(),2) + pow(myAmmo.at(i)->getY() - myAmmo.at(i)->getOldY(),2) + pow(myAmmo.at(i)->getZ() - myAmmo.at(i)->getOldZ(),2) );
 		for(register unsigned int j=0;j<myBombs.size();j++){
-			//distance = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
-			//distance = sqrt(distance);
+			//Si adotta un tipo di check-collision diverso a seconda della situazione, per risolvere il problema del FRAME-SKIP!
 
-			//Metodo della triangolazione (sfrutta Erone)
+			//Metodo della triangolazione (sfrutta Erone, è più pesante ma garantisce un check affidabile)
 			if(myBombs.at(j)->getZ() >= myAmmo.at(i)->getZ() && myBombs.at(j)->getZ() <= myAmmo.at(i)->getOldZ() ){
 				distanceAC = sqrt( pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2) );
 				distanceBC = sqrt( pow(myAmmo.at(i)->getOldX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getOldY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getOldZ() - myBombs.at(j)->getZ(),2) );
 				semi = (distanceAB+distanceAC+distanceBC)/2.0f;
 				h = pow( (2*semi*(semi-distanceAB)*(semi-distanceAC)*(semi-distanceBC))/distanceAB , 2);
-				//Lavoro volutamente coi quadrati, per risparmiare un controllo sotto e per evitare la sqrt nel caso base
-				cout << "Coll " << endl;
+				//Lavoro volutamente coi quadrati, per risparmiare un controllo sotto e per evitare la sqrt nel caso base (sqrt è pesante)
 			}
 			else{//Metodo della distanza semplice
 				h = pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2);
@@ -365,7 +365,6 @@ else if(paused){
 				//Evito la sqrt per velocizzare e lavoro coi quadrati
 			}
 
-			//if(distance <=impactDistance){
 			if(h <=impactDistance){
 				myExplosions.push_back(new Explosion(myAmmo.at(i)->getX(),myAmmo.at(i)->getY(),myAmmo.at(i)->getZ()));
 				delete myBombs.at(j);
@@ -389,7 +388,7 @@ else if(paused){
 											  //pow(this->getY()-others.at(i)->getY() ,2) +
 											  pow(myAmmo.at(i)->getZ()-checkSect->getBuildings().at(m)->getZ() ,2));
 
-				if(effectiveDistance <= impactDistance && 	myAmmo.at(i)->getY() <= checkSect->getBuildings().at(m)->getL()*2){
+				if(effectiveDistance <= impactDistance && myAmmo.at(i)->getY() <= checkSect->getBuildings().at(m)->getL()*2){
 						checkSect->getBuildings().at(m)->setL(checkSect->getBuildings().at(m)->getL()-0.5f);
 						myExplosions.push_back(new Explosion(myAmmo.at(i)->getX(),myAmmo.at(i)->getY()+myAmmo.at(i)->getDimY(),myAmmo.at(i)->getZ()));
 						delete myAmmo.at(i);
@@ -471,46 +470,27 @@ void DrawScene()
 {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode(GL_PROJECTION); //-> lavora sulla matrice di proiezione
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	glFrustum(-0.4f, 0.4f, -0.25f, 0.25f,  pNear,2000);
-	//i primi 4 parametri individuano l'apetura sul piano "near"
-	//gli ultimi due sono: la distanza dal piano near, la distanza dal piano far
 
-	/*Devo mantenere le "proporzioni" dello schermo, per evitare lo stretch delle immagini!!!!
-	  Ad esempio con 1280x800 , x = 1.6 y
-	 */
+	//Fonte di luce in alto a dx (simula la luna)
+	GLfloat PosLite[4] = { 30.0f, 15.0f, -50.0f, 1 };
+	glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
 
 	//Osservatore
 	glRotatef(-ossB, 1, 0, 0); //imp per prima..
 	glRotatef(-ossA, 0, 1, 0); //imp
 	glTranslatef(-ossX,-ossY,-ossZ);
 
-	//Luce
-	GLfloat aLite[4] = { 0.3f, 0.3f, 0.3f, 1 };
-	GLfloat dLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
-	GLfloat sLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
-
-	//Fonte di luce in alto a dx (simula la luna)
-	GLfloat PosLite[4] = { 30.0f, 15.0f, -50.0f, 1 };
-
-	glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
-	glLightfv(GL_LIGHT0, GL_POSITION, PosLite);
-
-
 	//Variabili per definire materiali
 	//GLfloat ambiente[4] = { 0.8f, 0.8f, 0.6f, 1 };
 	//GLfloat direttiva[4] = { 0.7f, 0.7f, 0.7f, 1 };
 	//GLfloat brillante[4] = { 0.8f, 0.8f, 0.8f, 1 };
-
 
 	//cannone
 	clearMaterial();
@@ -628,11 +608,11 @@ void DrawScene()
 	glEnd();
 	glPopMatrix();
 
-	//Bombe (TMP)
+	//Bombe
 	for(register unsigned int i=0; i< myBombs.size(); i++)
 		myBombs.at(i)->drawMe();
 
-	//Proiettili (TMP)
+	//Proiettili
 	for(register unsigned int i=0; i< myAmmo.size(); i++)
 		myAmmo.at(i)->drawMe();
 
@@ -1147,9 +1127,6 @@ void initializeGame(){
 	 * 4  5  6
 	 *
 	 */
-
-	//Inizializzazioni varie
-
 	//coord x da cui partire a generare i settori
 	int startX = -15;
 	//asse centrale della citta
@@ -1164,7 +1141,7 @@ void initializeGame(){
 	int xIterator = startX;
 	int yIterator = citysize;
 
-	//Globals
+	//Globals initializing
 	gamesStarted=false;
 	gamesEnded=false;
 	helpShowed=false;
@@ -1258,17 +1235,7 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
-	/* Per l'avvio in modalità finestra */
-	/*
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(550, 550);
-	glutCreateWindow("Difesa delle cittadella - Stefano Bonetta");
-	 */
-	//glutFullScreen();
-
-
-	//glutInitWindowSize(1280, 800);
-	/*Avvio in fullscreen*/
+	/*Avvio in fullscreen con risoluzion impostata da linea di comando (Default 1280x800)*/
 	char* w="1280";
 	char* h="800";
 	if(argc==3){
@@ -1280,7 +1247,7 @@ int main(int argc, char **argv)
 		cout << endl << "Game started with default resolution (1280x800)." << endl <<  "Use the two first line parameters to specify a different resolution (w x h)" << endl;
 	}
 
-	//Costruisco la "gamestring" da passare alla callback
+	//Costruisco la "gamestring" da passare alla callback per la modalità fullscreen-gamemode
 	char myResolution[20];
 	strcpy (myResolution,"");
 	strcat(myResolution,w);
@@ -1319,6 +1286,15 @@ int main(int argc, char **argv)
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 0);
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+
+	//Luce
+	GLfloat aLite[4] = { 0.3f, 0.3f, 0.3f, 1 };
+	GLfloat dLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
+	GLfloat sLite[4] = { 1.0f, 1.0f, 1.0f, 1 };
+	glLightfv(GL_LIGHT0, GL_AMBIENT, aLite);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, dLite);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, sLite);
+
 
 	//Disabilita il cursore del mouse
 	glutSetCursor(GLUT_CURSOR_NONE);
