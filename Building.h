@@ -18,8 +18,8 @@ private:
 	int texture_id;
 
 public:
-	//Costruttore
-	Building(float,float,float,float,float,float);
+	//Costruttore (pos, rotaz)
+	Building(float,float,float, float,float,float);
 
 	//Metodo per attribuire un ingombro casuale all'edificio
 	void randomizeDimension();

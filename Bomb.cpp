@@ -1,17 +1,17 @@
-/*
- * Bomb.cpp
- *
- *  Created on: 16/apr/2010
- *      Author: ziby
+/* ################################# Bomb #######################################
+ * ######## Classe che rappresenta la bomba che viene sparata sulla città #######
+ * è un oggeto MOBILE e DISTRUTTIBILE
  */
 
 #include "Bomb.h"
 
+//Costruttore (pos)
 Bomb::Bomb(float _X,float _Y,float _Z) : Obj(_X,_Y,_Z, 0.4f,0.4f,0.4f,rand()%360,rand()%360,rand()%360), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, 0,1,0) {
 	setL(1.0f);
 	cout << "New bomb created at (" << _X << "," << _Y << "," << _Z << ")" << endl;
 }
 
+//Costruttore speciale per bombe lanciate sopra uno specifico edificio
 Bomb::Bomb(float _X,float _Y,float _Z, Sector* mySector, Building* myBuilding) : Obj(_X,_Y,_Z, 0.4f,0.4f,0.4f), DistructableObj(_X,_Y,_Z), MobileObj(_X,_Y,_Z, 0,1,0) {
 	setL(1.0f);
 	currentSector = mySector;
@@ -20,16 +20,16 @@ Bomb::Bomb(float _X,float _Y,float _Z, Sector* mySector, Building* myBuilding) :
 	cout << "New bomb created at (" << _X << "," << _Y << "," << _Z << ")" << endl;
 }
 
+//Override del metodo di movimento di MobileObj
 void Bomb::move(long time){
 	//Cinematica della bomba
 	setY(getY()-getvY()*time/speed);
 	setrZ(getrZ()+1.0f);
 	setrY(getrY()+1.0f);
 	setrX(getrX()+1.0f);
-
-
 };
 
+//Metodo che individua automaticamente i possibili target di collisione
 void Bomb::autodetectBuildings(Building* myBuilding){
 	vector<Building*> others = currentSector->getBuildings();
 	for(unsigned int i=0; i< others.size(); i++){
@@ -55,11 +55,13 @@ void Bomb::autodetectBuildings(Building* myBuilding){
 
 };
 
+//Metodo che controlla se è avvenuta una collisione tra la bomba e i possibili target
 bool Bomb::checkCollision(){
 	register bool ris=false;
 	register float max=0;
 	register int maxIndex=-1;
 
+	//individua i target condidati alla collisione
 	for(unsigned register int i = 0; i< possibileTarget.size(); i++){
 		if(getY() <= possibileTarget.at(i)->getL()*2){
 			if(possibileTarget.at(i)->getL()>max){
@@ -69,6 +71,7 @@ bool Bomb::checkCollision(){
 		}
 	}
 
+	//tra i candidati alla collisione, prende quello ad altezza maggiore, quindi più vicino alla bomba
 	if(maxIndex != -1){
 		possibileTarget.at(maxIndex)->setL(possibileTarget.at(maxIndex)->getL()-0.5f);
 		Building* toRemove = possibileTarget.at(maxIndex);
@@ -108,6 +111,7 @@ bool Bomb::checkCollision(){
 	return ris;
 };
 
+//metodo per la gestione della memoria condivisa (elimina i riferimenti a questa bomba)
 void Bomb::clearRef(){
 	for(unsigned int j=0; j< possibileTarget.size(); j++){
 		possibileTarget.at(j)->removeRefer();
@@ -118,11 +122,12 @@ void Bomb::clearRef(){
 	}
 };
 
+//Metodo per l'aggiunta di un possibile target di collisione
 void Bomb::addPossibleTarget(Building* newBuilding){
  possibileTarget.push_back(newBuilding);
 };
 
-
+//Metodo per la rimozione di un possibile target di collisione
 void Bomb::removePossibleTarget(Building* newBuilding){
 
 	for(unsigned int j=0; j< possibileTarget.size(); j++){
@@ -133,37 +138,38 @@ void Bomb::removePossibleTarget(Building* newBuilding){
 	}
 };
 
+//Metodo per impostare il settore di interesse
 void Bomb::setSector(Sector* mySector){
  currentSector = mySector;
 };
 
-Bomb::~Bomb(){
-	//Animazione distruzione
-	cout << "Deleted bomb" << endl;
-}
-
+//Override del metodo di drawing
 void Bomb::drawMe(){
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	glTranslatef(getX(),getY(),getZ());
-	glRotatef(getrX(), 1, 0, 0);
-	glRotatef(getrY(), 0, 1, 0);
-	glRotatef(getrZ(), 0, 0, 1);
+		glTranslatef(getX(),getY(),getZ());
+		glRotatef(getrX(), 1, 0, 0);
+		glRotatef(getrY(), 0, 1, 0);
+		glRotatef(getrZ(), 0, 0, 1);
 
-	GLfloat ambiente[4] =  { 0.3f, 0.3f, 0.6f, 1.0f };
-	GLfloat direttiva[4] =  { 0.3f,0.3f, 0.6f, 1.0f };
-	GLfloat brillante[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		GLfloat ambiente[4] =  { 0.3f, 0.3f, 0.6f, 1.0f };
+		GLfloat direttiva[4] =  { 0.3f,0.3f, 0.6f, 1.0f };
+		GLfloat brillante[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	//glMateriali(GL_FRONT, GL_SHININESS, 32);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
+		//glMateriali(GL_FRONT, GL_SHININESS, 32);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambiente);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, direttiva);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, brillante);
 
-	glutSolidSphere(getDimX(),10,10);
+		glutSolidSphere(getDimX(),10,10);
 
-	glTranslatef(getDimX(),0,0);
-	glutSolidSphere(0.1f,10,10);
+		glTranslatef(getDimX(),0,0);
+		glutSolidSphere(0.1f,10,10);
 
 	glPopMatrix(); //Con push e pop disaccoppio il disegno corrente dal resto del contesto
 
 };
+
+Bomb::~Bomb(){
+	cout << "Deleted bomb" << endl;
+}

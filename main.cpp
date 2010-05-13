@@ -1,9 +1,16 @@
-/*
- * main.cpp
- * Difesa della Cittadella
- *  Created on: 06/apr/2010
- *    Author: Stefano Bonetta
+/* ############################################################################
+ * ############################################################################
+ * #######################   DIFESA DELLA CITTADELLA   ########################
+ * ############################################################################
+ * ###########   Progetto Informatica Grafica AA 2009/2010   ##################
+ * ############################################################################
+ * ############################################################################
+ * ####################### Stefano Bonetta - 584119 ###########################
+ * ############################################################################
+ * ############################################################################
  */
+
+//MAIN FILE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,58 +30,75 @@
 #include "Projectile.h"
 #include "Explosion.h"
 
-
+using namespace std;
 //void CambiaDim(int, int);
 //void DrawScene();
 //void TastoPremuto(unsigned char, int, int);
 
-using namespace std;
-
-
 /* ################################## GLOBALI ################################## */
+//PiGreco
+const float PI = 3.14159265;
+
+//Risoluzione
+int userW;
+int userH;
+
+//Stato Gioco avviato
 bool gamesStarted;
+//Stato Gioco finito
 bool gamesEnded;
+//Stato help visualizzato
 bool helpShowed;
+//Stato pausa
 bool paused;
+//Stato antialiasing
 bool antialiasing;
 
+//recoil del cannone
 float recoil;
+//tempo di ricarica
 float recoilTime;
+//vita globale della cittadella
 float life;
+//vita iniziale della cittadella
 float initial;
+//punteggio del giocatore
 int score;
 char stringscore[32];
+
+//tempo di gioco
 float gametime;
+//coefficiente per determinare il tempo massimo di gioco
 float timecoeff;
 
+//La cittadella (ovvero un vettore di Settori)
 vector<Sector*> myCitadel;
+//Le bombe in volo
 vector<Bomb*> myBombs;
+//I proiettili in volo
 vector<Projectile*> myAmmo;
+//Le esplosioni correnti
 vector<Explosion*>myExplosions;
+//Il cannone
 Cannon* myCannon;
 
-
-const float PI = 3.14159265;
+//variabile per il calcolo del delta-t che intercorre tra la chiamata n e n+1 di GlutIdleFunction
 long delta_t;
-int sectors=6;
 
-
-//Array globale per le luce
-//GLfloat PosLite[4]={2,2,2,1};
-int dim_cit = 20;
-
-/*  TEXTURE  */
+//Textures
 vector<GLubyte*> Textures;
 
-//Osservatore...
+//Osservatore
 float ossX, ossY, ossZ;
 float ossA, ossB;
+
+//Parametro per il frustum
 float pNear=0.5;
 
-/*############################################################################*/
+/*#######################################################################################*/
+/*##############################  Support Functions  ####################################*/
 
-
-
+//metodo che abilita/disabilita Antialias (BETA)
 void swapAntialias(){
 	antialiasing=!antialiasing;
 	if(antialiasing){
@@ -97,66 +121,8 @@ void swapAntialias(){
 		glDisable(GL_POLYGON_SMOOTH);
 	}
 }
-//Linko le funzioni..
-void TastoPremuto(unsigned char t, int, int)
-{
-	/*
-	if(t == 'm') ossZ -= 0.1f;
-	if(t == 'n') ossZ += 0.1f;
-	if(t == '.') ossX -= 0.1f;
-	if(t == ',') ossX += 0.1f;
-	if(t == '1') ossY -= 0.1f;
-	if(t == '2') ossY += 0.1f;
 
-	if(t == 'v') ossA -= 2;
-	if(t == 'b') ossA += 2;
-
-	if(t == 'g') ossB -= 2;
-	if(t == 'h') ossB += 2;
-	*/
-
-
-	//cambiare angolo focale (piano near)
-	/*  if(t == '1') pNear *= 1.1f;
-    if(t == '2') pNear *= 0.9f;
-	 */
-
-	//Esci dal gioco
-	if(t == 27) exit(0);
-
-	//inizia a giocare
-	else if(t == 's' && !gamesStarted){
-		gamesStarted=true;
-		helpShowed=false;
-		myCannon->swapTargetingEnabled();
-	}
-
-	//toggle help
-	else if(t == 'h'){
-		helpShowed = ! helpShowed;
-	}
-
-	//toggle pause
-	else if(t == 'p'){
-		paused = !paused;
-	}
-
-	//toggle antialias
-	else if(t == 'a'){
-		swapAntialias();
-	}
-
-	//Toggle del mirino
-	else if(t == 'x') myCannon->swapTargetingEnabled();
-	/*	if(t == 'q'){
-		if(glutGetModifiers() == GLUT_ACTIVE_CTRL)
-		exit(0);
-	}
-	 */
-
-	glutPostRedisplay();		//richiesta di ridisegnare la finestra
-}
-
+//Reset del materiale
 void clearMaterial(){
 	//Variabili per definire materiali
 	GLfloat ambiente[4] =  { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -338,6 +304,47 @@ void drawPause(){
 	glPopMatrix();
 }
 
+/*#######################################################################################*/
+/*###########################  CALLBACK Functions #######################################*/
+
+
+/*#################### CALLBACK gestione input da tastiera #####################*/
+void KeyHandler(unsigned char t, int, int)
+{
+
+	//Esci dal gioco
+	if(t == 27) exit(0);
+
+	//inizia a giocare
+	else if(t == 's' && !gamesStarted){
+		gamesStarted=true;
+		helpShowed=false;
+		myCannon->swapTargetingEnabled();
+	}
+
+	//toggle help
+	else if(t == 'h'){
+		helpShowed = ! helpShowed;
+	}
+
+	//toggle pause
+	else if(t == 'p'){
+		paused = !paused;
+	}
+
+	//toggle antialias
+	else if(t == 'a'){
+		swapAntialias();
+	}
+
+	//Toggle del mirino
+	else if(t == 'x') myCannon->swapTargetingEnabled();
+
+
+	glutPostRedisplay();		//richiesta di ridisegnare la finestra
+}
+
+/*#################### CALLBACK resizing #####################*/
 void CambiaDim(int w, int h)
 {
 	glViewport(0,0,w,h);
@@ -373,12 +380,12 @@ void Progress(){
 		myAmmo.at(i)->move(glutGet(GLUT_ELAPSED_TIME)-delta_t);
 		register bool die=false;
 
-		//->with bombs
+		//-------->with bombs
 		distanceAB =sqrt( pow(myAmmo.at(i)->getX() -myAmmo.at(i)->getOldX(),2) + pow(myAmmo.at(i)->getY() - myAmmo.at(i)->getOldY(),2) + pow(myAmmo.at(i)->getZ() - myAmmo.at(i)->getOldZ(),2) );
 		for(register unsigned int j=0;j<myBombs.size();j++){
 			//Si adotta un tipo di check-collision diverso a seconda della situazione, per risolvere il problema del FRAME-SKIP!
 
-			//Metodo della triangolazione (sfrutta Erone, è più pesante ma garantisce un check affidabile)
+			//Metodo dell'altezza del triangolo (sfrutta Erone, è più pesante ma garantisce un check affidabile)
 			if(myBombs.at(j)->getZ() >= myAmmo.at(i)->getZ() && myBombs.at(j)->getZ() <= myAmmo.at(i)->getOldZ() ){
 				distanceAC = sqrt( pow(myAmmo.at(i)->getX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getZ() - myBombs.at(j)->getZ(),2) );
 				distanceBC = sqrt( pow(myAmmo.at(i)->getOldX() - myBombs.at(j)->getX(),2) + pow(myAmmo.at(i)->getOldY() - myBombs.at(j)->getY(),2) + pow(myAmmo.at(i)->getOldZ() - myBombs.at(j)->getZ(),2) );
@@ -404,7 +411,7 @@ void Progress(){
 				updateScore(5);
 			}
 		}
-		//->with buildings
+		//---------->with buildings
 		register int toDestroy=-1;
 		register float nearest=-100;
 		for(register unsigned int k=0;k<myCitadel.size()&& !die;k++){
@@ -544,14 +551,6 @@ void DrawScene()
 	clearMaterial();
 	GLfloat scuro[4] = { 0.0f, 0.0f,0.0f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_SPECULAR, scuro);
-	/*
-	glMateriali(GL_FRONT, GL_SHININESS, 16);
-	GLfloat ambienteB[4] =  { 0.6f,0.6f,0.6f,1.0f };
-	GLfloat direttivaB[4] ={ 0.6f,0.6f,0.6f,1.0f };
-
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambienteB);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, direttivaB);
-	*/
 
 	for(a=-80; a<80; a+=delta)
 	{
@@ -775,6 +774,7 @@ void DrawScene()
 	//Menu
 	if(!gamesStarted) drawMenu();
 
+	//End game
 	if(gamesEnded){
 		if(life <=0)youLose();
 		else youWin();
@@ -883,15 +883,7 @@ void DrawScene()
 		glColor3f(1,0,0);
 		glTranslatef(cos((myCannon->getrZ()+90.0f)/180.0f*PI)*size*2,sin((myCannon->getrX()+90.0f)/180.0f*PI)*size*2,0.01f);
 		glutSolidSphere(2.0f,10,10);
-		/*
-		glBegin(GL_LINES);
-			glVertex3f(0,0,0);
-			glVertex3f(cos((myCannon->getrZ()-90.0f)/180.0f*PI)*size*2,sin((myCannon->getrX()+90.0f)/180.0f*PI)*size*2,0);
 
-		glEnd();
-		*/
-		//glutWireSphere(10,40,40);
-		//glutSolidSphere(10,40,40);
 	glPopMatrix();
 
 	//Recoil
@@ -975,7 +967,7 @@ void DrawScene()
 }
 
 
-//CALLBACK gestione azioni del mouse
+/*#################### CALLBACK gestione mouse click #####################*/
 void processMouseAction (int button, int state, int x, int y){
 	if(!gamesStarted || paused)return;
 	//	buttons[button] = state;
@@ -992,22 +984,15 @@ void processMouseAction (int button, int state, int x, int y){
 		register float sinZ =  sin((myCannon->getrZ()+90.0f) /180.0f*PI);
 
 		//Fattore di spostamento verticale (vY)
-
 		register float sinX = sin((myCannon->getrX()+90.0f) /180.0f*PI);
 		register float cosX = cos((myCannon->getrX()) /180.0f*PI);
 
 		//cout << "Debug: angolo=" <<  myCannon->getrX()+90.0f << "  rad= " << ((myCannon->getrX()+90.0f) /180.0f*PI)<< "  sin=" << sinX << endl;
 		//cout << "Projectile angle,cos:" <<myCannon->getrZ()+90.0f <<" "<< cosZ << endl;
-		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(), cosZ+(1-senZ)/2,cosX+(1-senX)/2,senZ));
 		//cout << "Debug sinZ " << senZ << endl;
 		register float vZ = (sinX>=0) ? sinX : -sinX; //max(sinX,-sinX);
 		//cout << "Debug VZ " << vZ << "   asasd " << sinZ-vZ << endl;
 		//cout << "Debug cosX " << vZ << "   cosX " << cosX << endl;
-
-		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, senZ-vZ));
-		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sqrt(pow(1-pow(sinX,2),2) - pow(cosZ,2)) ));
-		//cout << "Debug zzz " << sqrt( pow(sinZ,2)-pow(sinX,2) ) << endl;
-		//myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sqrt( pow(sinZ,2)-pow(sinX*(1-cosZ),2) ) ));
 		myAmmo.push_back(new Projectile(myCannon->getX(),myCannon->getY(),myCannon->getZ(),  cosZ,-sinX, sinZ ));
 		/* Volendo, si dovrebbe migliorare le precisione del calcolo della vZ*/
 	}
@@ -1038,19 +1023,17 @@ void processMouseActiveMotion(int x, int y){
 
 	//Muove il cannone
 	//cout<< "Mouse pos (x,y):"<< x << "," <<y <<endl;
-	register float halfScreen = 640.0f;
+	register float halfScreen = userW/2;//640.0f;
 	register float myVal = ((x-halfScreen)/halfScreen);
 	register float angle = acos(myVal)*180.0f/PI - 90.0f;
 	cout << "ANGLE = " << angle << endl;
 
 	if(angle>28.0f)angle=28.0f;
 	else if(angle <-28.0f)angle=-28.0f;
-	//else if(angle >-75.0f)angle=-75.0f;
 	//cout << "Mouse acos in gradi = " << angle << endl;
 	myCannon->setrZ(angle);
 
-
-	halfScreen = 400.0f;
+	halfScreen = userH/2;//400.0f;
 	myVal = ((y-halfScreen)/halfScreen);
 	angle = acos(myVal)*180.0f/PI - 180.0f;
 
@@ -1060,6 +1043,9 @@ void processMouseActiveMotion(int x, int y){
 	//cout << "Mouse acos in gradi = " << angle << endl;
 	myCannon->setrX(angle);
 }
+
+/*#######################################################################################*/
+/*##############################  Sturtup Functions  ####################################*/
 
 //Carica le texture
 int loadTextures(){
@@ -1208,7 +1194,7 @@ void initializeGame(){
 	int xIterator = startX;
 	int yIterator = citysize;
 
-	//Globals initializing
+	//Globals initialization
 	gamesStarted=false;
 	gamesEnded=false;
 	helpShowed=false;
@@ -1261,7 +1247,7 @@ void initializeGame(){
 
 		for(int k=0; k < toBuild; k++){
 			int relPosX = (rand() % max((myWidth-6),1))+3 + newSector->getX();
-			int relPosZ = meno*((rand() % max((myHeight-6),1))+3) - newSector->getZ(); //<<<<<<<<<<<< DA AGGIUSTARE PER NON FAR SFORARE GLI EDIFICI
+			int relPosZ = meno*((rand() % max((myHeight-6),1))+3) - newSector->getZ();
 			int myrY = rand() % 360;
 
 			Building* newBuilding = new Building(relPosX,0,-1*relPosZ, 0,myrY,0);
@@ -1272,16 +1258,18 @@ void initializeGame(){
 		cout<< "\n Limiter   for sector " << j << " : " << limiter << endl;
 		cout<< " Effective for sector " << j << " : " << toBuild << endl;
 
-
 		//Aggiungo settore alla cittadella
 		myCitadel.push_back(newSector);
 
 		xIterator += myWidth;
 		yIterator -= myWidth;
 	}
+
+	//Imposto parametri di gioco, in base alla dimensione della citta appena creata
 	initial=life;
 	gametime=life*timecoeff;
 
+	//Creo cannone
 	myCannon = new Cannon();
 
 	//Posizione iniziale dell'osservatore
@@ -1296,7 +1284,9 @@ void initializeGame(){
 }
 
 
-//main
+/*#######################################################################################*/
+/*#################################   Main   ############################################*/
+
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
@@ -1305,6 +1295,7 @@ int main(int argc, char **argv)
 	/*Avvio in fullscreen con risoluzion impostata da linea di comando (Default 1280x800)*/
 	char* w="1280";
 	char* h="800";
+
 	if(argc==3){
 		w=argv[1];
 		h=argv[2];
@@ -1313,6 +1304,9 @@ int main(int argc, char **argv)
 	else{
 		cout << endl << "Game started with default resolution (1280x800)." << endl <<  "Use the two first line parameters to specify a different resolution (w x h)" << endl;
 	}
+
+	userW = atoi(w);
+	userH = atof(h);
 
 	//Costruisco la "gamestring" da passare alla callback per la modalità fullscreen-gamemode
 	char myResolution[20];
@@ -1328,7 +1322,7 @@ int main(int argc, char **argv)
 	/* Callback binding */
 	glutReshapeFunc(CambiaDim);
 	glutDisplayFunc(DrawScene);
-	glutKeyboardFunc(TastoPremuto);
+	glutKeyboardFunc(KeyHandler);
 
 	//(Cattura movimenti mouse)
 	glutMouseFunc(processMouseAction);

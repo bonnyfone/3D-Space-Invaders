@@ -24,8 +24,10 @@ private:
 	vector<Building*> possibileTarget;
 
 public:
-	//Costruttori
+	//Costruttore (pos)
 	Bomb(float,float,float);
+
+	//Costruttore speciale per bombe lanciate sopra uno specifico edificio
 	Bomb(float,float,float,Sector*,Building*);
 
 	//Metodo per l'aggiunta di un possibile target di collisione
