@@ -8,9 +8,10 @@ using namespace std;
 class DistructableObj: public virtual Obj
 {
 private:
-	//la "vita" dell'oggetto. L'oggetto è completamente distrutto quando L <= 0
+	//la "vita" attuale dell'oggetto. L'oggetto è completamente distrutto quando L <= 0
     float L;
 
+    //la "vita" iniziale
     float startingL;
 
 public:
@@ -25,15 +26,12 @@ public:
     //metodo per generare casualmente la vita dell'oggetto
     void randomizeLife();
 
-    //ritorna quanta vita ha l'oggetto
+    //Set & Get
     float getL() const;
     float getStartingL() const;
-
     void setL(float);
 
     virtual ~DistructableObj();
-
-
 };
 
 #endif /* DISTRUCTABLEOBJ_H_ */

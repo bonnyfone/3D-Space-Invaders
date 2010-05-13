@@ -1,3 +1,8 @@
+/*########################## OBJ ########################*/
+/* Classe fondamentale che rappresenta un generico oggetto grafico nello spazio
+ * Si prevede che tale oggetto possa essere usato in modo condiviso, pertanto vengono forniti
+ * i metodi per la gestione della memoria condivisa in stile SmartPointer
+ */
 
 #include "Obj.h"
 using namespace std;
@@ -50,18 +55,24 @@ using namespace std;
 	void Obj::setrZ(float _rZ){ rZ = _rZ;};
 
 
+
+	/*Metodi per la gestione della memoria in stile SmartPointer*/
+
+	 //aggiunta di un refer
 	void Obj::addRefer(){
 		refering++;
 	};
 
+	//rimozione di un refer
 	void Obj::removeRefer(){
 		refering--;
 	};
 
+	//controlla se l'oggetto è cancellabile
 	bool Obj::isAlone(){
 		cout << "Checkato isAlone() = " << refering << endl;
 		if(refering>0) return false;
 		return true;
-	}
+	};
 
 

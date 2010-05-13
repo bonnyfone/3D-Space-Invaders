@@ -17,6 +17,7 @@ using namespace std;
 #ifndef OBJ_H
 #define OBJ_H
 
+
 class Obj{
 
 private:
@@ -65,7 +66,7 @@ public:
 	void setrY(float);
 	void setrZ(float);
 
-	//Metodi per la gestione in stile SmartPointer
+	//Metodi per la gestione della memoria in stile SmartPointer
 	void addRefer(); //aggiunta di un refer
 	void removeRefer();//rimozione di un refer
 	bool isAlone();//controlla se l'oggetto è cancellabile
